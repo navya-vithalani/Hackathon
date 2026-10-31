@@ -6,6 +6,7 @@
 
 import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import { ServiceWorkerRegistration } from "@/components/pwa/ServiceWorkerRegistration";
 import "./globals.css";
 
 // ---------- Font loading ----------
@@ -85,22 +86,10 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Evently" />
-        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
       </head>
       <body className="font-body antialiased">
         {children}
-        {/* Service worker registration — runs client-side only */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
-                window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js').catch(console.error);
-                });
-              }
-            `,
-          }}
-        />
+        <ServiceWorkerRegistration />
       </body>
     </html>
   );

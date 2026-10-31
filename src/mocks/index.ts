@@ -20,6 +20,7 @@ import type {
   Institution,
   FormField,
   Screening,
+  Notification,
 } from '@/types'
 
 // ---------- Institutions ----------
@@ -100,10 +101,10 @@ export const MOCK_PROFILES: Profile[] = [
 export const MOCK_EVENTS: Event[] = [
   {
     id: 'evt-1',
-    slug: 'code-storm-2025',
+    slug: 'code-storm-2026',
     owner_id: 'user-2',
     owner: MOCK_ORGANIZER,
-    title: 'CodeStorm 2025',
+    title: 'CodeStorm 2026',
     description_structured: {
       summary:
         'A 24-hour hackathon open to all high school students. Build something that solves a real problem in your school or community.',
@@ -133,8 +134,8 @@ export const MOCK_EVENTS: Event[] = [
     type: 'hackathon',
     mode: 'offline',
     venue: 'DPS RK Puram, Main Hall',
-    starts_at: '2025-03-15T09:00:00Z',
-    ends_at: '2025-03-16T18:00:00Z',
+    starts_at: '2026-12-12T09:00:00Z',
+    ends_at: '2026-12-13T18:00:00Z',
     cost_amount: 0,
     registration_mode: 'screened',
     eligibility: {
@@ -144,15 +145,15 @@ export const MOCK_EVENTS: Event[] = [
     capacity: 200,
     cover_url: undefined,
     status: 'published',
-    created_at: '2025-01-10T12:00:00Z',
+    created_at: '2026-09-10T12:00:00Z',
     member_role: 'participant',
   },
   {
     id: 'evt-2',
-    slug: 'mun-spring-2025',
+    slug: 'mun-winter-2027',
     owner_id: 'user-3',
     owner: MOCK_STAFF,
-    title: 'DPSMUN Spring 2025',
+    title: 'DPSMUN Winter 2027',
     description_structured: {
       summary:
         'Annual Model United Nations conference hosted by DPS RK Puram. Six committees, 300+ delegates.',
@@ -177,8 +178,8 @@ export const MOCK_EVENTS: Event[] = [
     type: 'mun',
     mode: 'offline',
     venue: 'DPS RK Puram, Auditorium',
-    starts_at: '2025-04-05T08:30:00Z',
-    ends_at: '2025-04-07T17:00:00Z',
+    starts_at: '2027-01-23T08:30:00Z',
+    ends_at: '2027-01-25T17:00:00Z',
     cost_amount: 500,
     registration_mode: 'screened',
     eligibility: {
@@ -187,14 +188,14 @@ export const MOCK_EVENTS: Event[] = [
     },
     capacity: 300,
     status: 'published',
-    created_at: '2025-02-01T10:00:00Z',
+    created_at: '2026-09-20T10:00:00Z',
   },
   {
     id: 'evt-3',
-    slug: 'annual-sports-day-2025',
+    slug: 'annual-sports-day-2026',
     owner_id: 'user-3',
     owner: MOCK_STAFF,
-    title: 'Annual Sports Day 2025',
+    title: 'Annual Sports Day 2026',
     description_structured: {
       summary:
         'Celebrate athletic excellence at our school\'s annual sports day. Track events, team sports, and relays for all grades.',
@@ -214,8 +215,8 @@ export const MOCK_EVENTS: Event[] = [
     type: 'sports',
     mode: 'offline',
     venue: 'DPS RK Puram, Sports Complex',
-    starts_at: '2025-02-20T07:30:00Z',
-    ends_at: '2025-02-20T17:00:00Z',
+    starts_at: '2026-11-20T07:30:00Z',
+    ends_at: '2026-11-20T17:00:00Z',
     cost_amount: 0,
     registration_mode: 'direct',
     eligibility: {
@@ -223,12 +224,12 @@ export const MOCK_EVENTS: Event[] = [
       account_types: ['student'],
     },
     status: 'published',
-    created_at: '2025-01-25T08:00:00Z',
+    created_at: '2026-09-25T08:00:00Z',
     member_role: 'participant',
   },
   {
     id: 'evt-4',
-    slug: 'ai-workshop-feb-2025',
+    slug: 'ai-workshop-dec-2026',
     owner_id: 'user-2',
     owner: MOCK_ORGANIZER,
     title: 'Introduction to AI/ML Workshop',
@@ -255,8 +256,8 @@ export const MOCK_EVENTS: Event[] = [
     type: 'workshop',
     mode: 'online',
     venue: undefined,
-    starts_at: '2025-02-10T10:00:00Z',
-    ends_at: '2025-02-10T17:00:00Z',
+    starts_at: '2026-12-05T10:00:00Z',
+    ends_at: '2026-12-05T17:00:00Z',
     cost_amount: 0,
     registration_mode: 'direct',
     eligibility: {
@@ -265,14 +266,14 @@ export const MOCK_EVENTS: Event[] = [
     },
     capacity: 50,
     status: 'published',
-    created_at: '2025-01-20T09:00:00Z',
+    created_at: '2026-10-01T09:00:00Z',
   },
   {
     id: 'evt-5',
-    slug: 'cultural-fest-2025',
+    slug: 'cultural-fest-2027',
     owner_id: 'user-2',
     owner: MOCK_ORGANIZER,
-    title: 'Utsav – Annual Cultural Fest 2025',
+    title: 'Utsav – Annual Cultural Fest 2027',
     description_structured: {
       summary:
         'Two days of dance, music, drama, and art. Open to all students. Competitions across 15 categories.',
@@ -289,16 +290,16 @@ export const MOCK_EVENTS: Event[] = [
     type: 'cultural',
     mode: 'offline',
     venue: 'DPS RK Puram, Auditorium & Grounds',
-    starts_at: '2025-11-14T09:00:00Z',
-    ends_at: '2025-11-15T20:00:00Z',
+    starts_at: '2027-02-06T09:00:00Z',
+    ends_at: '2027-02-07T20:00:00Z',
     cost_amount: 200,
     registration_mode: 'direct',
     eligibility: {
       type: 'open',
       account_types: ['student'],
     },
-    status: 'draft',
-    created_at: '2025-09-01T11:00:00Z',
+    status: 'published',
+    created_at: '2026-10-10T11:00:00Z',
     member_role: 'organizer',
   },
 ]
@@ -500,5 +501,40 @@ export const MOCK_IDEAS: Idea[] = [
     hidden: false,
     has_voted: false,
     created_at: '2025-01-10T09:00:00Z',
+  },
+]
+
+// ---------- Notifications ----------
+
+export const MOCK_NOTIFICATIONS: Notification[] = [
+  {
+    id: 'notice-1',
+    user_id: 'user-1',
+    type: 'registration_status',
+    title: 'You are registered for CodeStorm 2026',
+    body: 'Your place is confirmed. Event details and schedule are ready in your workspace.',
+    read: false,
+    link: '/app/event/code-storm-2026',
+    created_at: '2026-10-28T15:00:00Z',
+  },
+  {
+    id: 'notice-2',
+    user_id: 'user-1',
+    type: 'announcement',
+    title: 'A new campus announcement',
+    body: 'The Computer Lab schedule has been updated for this term.',
+    read: false,
+    link: '/app/campus',
+    created_at: '2026-10-27T09:30:00Z',
+  },
+  {
+    id: 'notice-3',
+    user_id: 'user-1',
+    type: 'broadcast',
+    title: 'CodeStorm organizer update',
+    body: 'Team registration closes one week before the event.',
+    read: true,
+    link: '/app/event/code-storm-2026',
+    created_at: '2026-10-25T18:20:00Z',
   },
 ]

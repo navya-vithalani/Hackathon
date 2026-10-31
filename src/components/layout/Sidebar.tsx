@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils/cn';
 import { MAIN_NAV, INBOX_NAV } from '@/lib/constants/nav';
+import { ROUTES } from '@/lib/constants/routes';
 import { Avatar } from '@/components/ui/Avatar';
 import type { Profile } from '@/types';
 
@@ -47,7 +48,7 @@ export function Sidebar({ user, notificationCount = 0 }: SidebarProps) {
       {/* Logo */}
       <div className="flex items-center h-[var(--nav-height)] px-[var(--space-5)] shrink-0 border-b border-[var(--color-border)]">
         <Link
-          href="/app"
+          href={ROUTES.APP_HOME}
           className="font-heading font-bold text-xl text-[var(--color-text)] hover:opacity-80 transition-opacity"
           aria-label="Evently home"
         >
@@ -99,7 +100,7 @@ export function Sidebar({ user, notificationCount = 0 }: SidebarProps) {
       {user && (
         <div className="shrink-0 border-t border-[var(--color-border)] p-[var(--space-3)]">
           <Link
-            href="/app/profile"
+            href={ROUTES.APP_PROFILE}
             className={cn(
               'flex items-center gap-[var(--space-3)] rounded-[var(--radius-md)]',
               'px-[var(--space-3)] py-[var(--space-2)] min-h-[44px]',

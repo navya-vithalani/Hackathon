@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Bell } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
+import { ROUTES } from '@/lib/constants/routes';
 import type { ReactNode } from 'react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -80,7 +81,7 @@ export function TopBar({
       ) : (
         /* Logo — visible on mobile; sidebar carries it on desktop */
         <Link
-          href="/app"
+          href={ROUTES.APP_HOME}
           aria-label="Evently home"
           className="flex items-center gap-2 md:hidden font-heading font-bold text-lg text-[var(--color-text)]"
         >
@@ -103,7 +104,7 @@ export function TopBar({
 
       {/* Notification bell */}
       <Link
-        href="/app/inbox"
+        href={ROUTES.APP_INBOX}
         aria-label={`Inbox${notificationCount > 0 ? `, ${notificationCount} unread` : ''}`}
         className="relative flex items-center justify-center rounded-[var(--radius-md)] p-2 text-[var(--color-text)] hover:bg-[var(--color-hover-overlay)] transition-colors"
       >

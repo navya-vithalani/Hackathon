@@ -4,7 +4,7 @@
  * Detects iOS standalone eligibility separately.
  */
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useSyncExternalStore } from 'react';
 
 /** Non-standard browser event — not yet in TypeScript's lib.dom. */
 interface BeforeInstallPromptEvent extends Event {
@@ -25,17 +25,30 @@ export interface UseInstallPromptReturn {
   dismiss: () => void;
 }
 
+function subscribeToInstallState(onStoreChange: () => void) {
+  const displayMode = window.matchMedia('(display-mode: standalone)');
+  displayMode.addEventListener('change', onStoreChange);
+  window.addEventListener('appinstalled', onStoreChange);
+  return () => {
+    displayMode.removeEventListener('change', onStoreChange);
+    window.removeEventListener('appinstalled', onStoreChange);
+  };
+}
+
+function getIOSSnapshot() {
+  const userAgent = navigator.userAgent;
+  const ios = /iPhone|iPad|iPod/.test(userAgent);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+    || (window.navigator as Navigator & { standalone?: boolean }).standalone === true;
+  return ios && !isStandalone;
+}
+
 export function useInstallPrompt(): UseInstallPromptReturn {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isDismissed,    setIsDismissed]    = useState(false);
-  const [isIOS,          setIsIOS]          = useState(false);
+  const isIOS = useSyncExternalStore(subscribeToInstallState, getIOSSnapshot, () => false);
 
   useEffect(() => {
-    // Detect iOS Safari (not already installed)
-    const ua  = navigator.userAgent;
-    const ios = /iPhone|iPad|iPod/.test(ua) && !(window as unknown as Record<string, unknown>)['standalone'];
-    setIsIOS(ios);
-
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);

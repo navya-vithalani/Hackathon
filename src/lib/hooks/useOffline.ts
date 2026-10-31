@@ -4,26 +4,21 @@
  * Hydration-safe: initialises to false on the server.
  */
 'use client';
-import { useState, useEffect } from 'react';
+import { useSyncExternalStore } from 'react';
+
+function subscribe(onStoreChange: () => void) {
+  window.addEventListener('online', onStoreChange);
+  window.addEventListener('offline', onStoreChange);
+  return () => {
+    window.removeEventListener('online', onStoreChange);
+    window.removeEventListener('offline', onStoreChange);
+  };
+}
+
+function getSnapshot() {
+  return !navigator.onLine;
+}
 
 export function useOffline(): boolean {
-  const [isOffline, setIsOffline] = useState(false);
-
-  useEffect(() => {
-    // Sync with real browser state after mount
-    setIsOffline(!navigator.onLine);
-
-    const handleOnline  = () => setIsOffline(false);
-    const handleOffline = () => setIsOffline(true);
-
-    window.addEventListener('online',  handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    return () => {
-      window.removeEventListener('online',  handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
-
-  return isOffline;
+  return useSyncExternalStore(subscribe, getSnapshot, () => false);
 }

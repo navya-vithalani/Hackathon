@@ -13,10 +13,14 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "**.supabase.co" },
     ],
   },
-  /* ---- Turbopack CSS handling ---- */
+  /* Keep Tailwind's compiler off CSS Modules so Next can scope them natively. */
   turbopack: {
+    root: process.cwd(),
     rules: {
       "*.css": {
+        condition: {
+          path: /src\/app\/globals\.css$/,
+        },
         loaders: ["@tailwindcss/turbopack"],
         as: "*.css",
       },
