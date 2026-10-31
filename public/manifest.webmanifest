@@ -1,0 +1,50 @@
+{
+  "name": "Evently",
+  "short_name": "Evently",
+  "description": "Create, discover, register for, and manage student events",
+  "start_url": "/app/home",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#D2A24E",
+  "background_color": "#FAF4B6",
+  "lang": "en",
+  "categories": ["education", "social"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Home Feed",
+      "url": "/app/home",
+      "description": "Browse eligible events"
+    },
+    {
+      "name": "Create Event",
+      "url": "/app/create",
+      "description": "Create a new event"
+    }
+  ]
+}
