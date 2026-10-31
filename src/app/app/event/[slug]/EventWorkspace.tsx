@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, CalendarDays, MapPin, Send, Settings2, Users } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, CalendarDays, MapPin, Send, Settings2, Users } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -70,7 +70,31 @@ export default function EventWorkspace({ event, members, broadcasts, registratio
       <Tabs value={activeTab} onChange={setActiveTab} tabs={tabs}>
         {activeTab === 'overview' && (
           <div className="grid grid-cols-1 gap-5 pt-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(250px,0.7fr)]">
-            <Card variant="flat" className="p-5"><Badge variant="success">{event.registration_mode === 'screened' ? 'Selection event' : 'Open registration'}</Badge><h2 className="mt-4 font-heading text-xl font-semibold">About this event</h2><p className="mt-2 text-sm leading-relaxed text-[var(--color-text-muted)]">{event.description_structured?.summary}</p>{event.description_structured?.schedule.length ? <div className="mt-5 border-t border-[var(--color-border)] pt-4"><h3 className="text-sm font-semibold">Schedule</h3><ul className="mt-3 space-y-2">{event.description_structured.schedule.map((item) => <li className="flex gap-3 text-sm" key={`${item.time}-${item.title}`}><span className="w-24 shrink-0 font-mono text-xs text-[var(--color-text-subtle)]">{item.time}</span><span>{item.title}</span></li>)}</ul></div> : null}</Card>
+            <Card variant="flat" className="p-5">
+              <Badge variant="success">{event.registration_mode === 'screened' ? 'Selection event' : 'Open registration'}</Badge>
+              <h2 className="mt-4 font-heading text-xl font-semibold">About this event</h2>
+              <p className="mt-2 text-sm leading-relaxed text-[var(--color-text-muted)]">{event.description_structured?.summary}</p>
+              {event.slug === 'xplorer-2026' && (
+                <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                  {[
+                    { title: 'Build your way', body: 'Solo or in a team of up to four. Team matching is available.' },
+                    { title: 'Beginner-first', body: 'No experience required — mentors help you turn an idea into a first version.' },
+                  ].map((item) => (
+                    <details key={item.title} className="group rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-3">
+                      <summary className="cursor-pointer text-sm font-semibold marker:text-[var(--color-secondary)]">{item.title}</summary>
+                      <p className="mt-2 text-xs leading-relaxed text-[var(--color-text-muted)]">{item.body}</p>
+                    </details>
+                  ))}
+                </div>
+              )}
+              {event.description_structured?.schedule.length ? (
+                <div className="mt-5 border-t border-[var(--color-border)] pt-4">
+                  <h3 className="text-sm font-semibold">Schedule</h3>
+                  <ul className="mt-3 space-y-2">{event.description_structured.schedule.slice(0, event.slug === 'xplorer-2026' ? 4 : undefined).map((item) => <li className="flex gap-3 text-sm" key={`${item.time}-${item.title}`}><span className="w-24 shrink-0 font-mono text-xs text-[var(--color-text-subtle)]">{item.time}</span><span>{item.title}</span></li>)}</ul>
+                </div>
+              ) : null}
+              {event.slug === 'xplorer-2026' && <Link href={`${ROUTES.EVENT_PUBLIC(event.slug)}#register`} className="mt-5 inline-flex min-h-[44px] items-center gap-2 rounded-[var(--radius-md)] bg-[var(--color-accent)] px-4 text-sm font-bold text-[var(--color-accent-contrast)] no-underline">View event & register <ArrowUpRight size={16} /></Link>}
+            </Card>
             <div className="space-y-3"><Card variant="flat" className="p-5"><p className="text-xs text-[var(--color-text-subtle)]">Your role</p><p className="mt-1 font-heading text-xl font-semibold capitalize">{role}</p><p className="mt-2 text-xs text-[var(--color-text-subtle)]">Role preview is local and does not change permissions on a live account.</p></Card><Card variant="flat" className="p-5"><div className="flex items-center gap-2 text-[var(--color-secondary)]"><Users size={17} /><h2 className="text-sm font-semibold text-[var(--color-text)]">Event crew</h2></div><p className="mt-2 text-sm text-[var(--color-text-muted)]">{members.length} team members and {registrations.length} sample registrations.</p></Card></div>
           </div>
         )}

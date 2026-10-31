@@ -6,6 +6,7 @@ import { EVENT_TYPE_LABELS } from '@/lib/constants/eventTypes';
 import { ROUTES } from '@/lib/constants/routes';
 import { MOCK_EVENTS } from '@/mocks';
 import styles from '../../discovery.module.css';
+import XplorerEventShowcase from './XplorerEventShowcase';
 
 export async function generateMetadata({ params }: PageProps<'/event/[slug]'>): Promise<Metadata> {
   const { slug } = await params;
@@ -50,53 +51,57 @@ export default async function EventPage({ params }: PageProps<'/event/[slug]'>) 
         <Link href="/#events">Discover <ArrowUpRight size={15} /></Link>
       </header>
 
-      <article className={styles.detailContent}>
-        <div className={styles.detailArtwork} data-type={event.type}>
-          <p>{EVENT_TYPE_LABELS[event.type]} · {event.mode === 'online' ? 'Online' : 'In person'}</p>
-          <h1>{event.title}</h1>
-        </div>
-
-        <div className={styles.detailBody}>
-          <div>
-            <p className={styles.detailSummary}>{event.description_structured?.summary}</p>
-            {event.description_structured?.schedule.length ? (
-              <section className={styles.detailSection}>
-                <h2>Schedule</h2>
-                <ul>
-                  {event.description_structured.schedule.map((item) => (
-                    <li key={`${item.time}-${item.title}`}><strong>{item.time}</strong> · {item.title}</li>
-                  ))}
-                </ul>
-              </section>
-            ) : null}
-            {event.description_structured?.rules.length ? (
-              <section className={styles.detailSection}>
-                <h2>Good to know</h2>
-                <ul>{event.description_structured.rules.map((rule) => <li key={rule}>{rule}</li>)}</ul>
-              </section>
-            ) : null}
+      {event.slug === 'xplorer-2026' ? (
+        <XplorerEventShowcase event={event} />
+      ) : (
+        <article className={styles.detailContent}>
+          <div className={styles.detailArtwork} data-type={event.type}>
+            <p>{EVENT_TYPE_LABELS[event.type]} · {event.mode === 'online' ? 'Online' : 'In person'}</p>
+            <h1>{event.title}</h1>
           </div>
 
-          <aside className={styles.detailFacts} aria-label="Event information">
-            <div className={styles.detailFact}>
-              <CalendarDays size={18} />
-              <div><strong>{eventDate}</strong><span>{eventDate === endDate ? 'One day event' : `Through ${endDate}`}</span></div>
+          <div className={styles.detailBody}>
+            <div>
+              <p className={styles.detailSummary}>{event.description_structured?.summary}</p>
+              {event.description_structured?.schedule.length ? (
+                <section className={styles.detailSection}>
+                  <h2>Schedule</h2>
+                  <ul>
+                    {event.description_structured.schedule.map((item) => (
+                      <li key={`${item.time}-${item.title}`}><strong>{item.time}</strong> · {item.title}</li>
+                    ))}
+                  </ul>
+                </section>
+              ) : null}
+              {event.description_structured?.rules.length ? (
+                <section className={styles.detailSection}>
+                  <h2>Good to know</h2>
+                  <ul>{event.description_structured.rules.map((rule) => <li key={rule}>{rule}</li>)}</ul>
+                </section>
+              ) : null}
             </div>
-            <div className={styles.detailFact}>
-              <MapPin size={18} />
-              <div><strong>{event.mode === 'online' ? 'Online event' : event.venue}</strong><span>{event.mode === 'online' ? 'Joining details shared by organizers' : 'Hosted by ' + (event.owner?.institution?.name ?? 'the campus community')}</span></div>
-            </div>
-            <div className={styles.detailFact}>
-              <Users size={18} />
-              <div><strong>{event.capacity ? `${event.capacity} places` : 'Open attendance'}</strong><span>{event.cost_amount === 0 ? 'Free to attend' : `₹${event.cost_amount} per person`}</span></div>
-            </div>
-          </aside>
-        </div>
-        <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-[var(--color-border)] pt-5">
-          <p className="text-sm text-[var(--color-text-subtle)]">Want to get involved? Sign in to explore this event.</p>
-          <Link className="inline-flex min-h-[44px] items-center gap-2 bg-[var(--color-accent)] px-4 text-sm font-semibold text-[var(--color-accent-contrast)] no-underline" href={ROUTES.APP_EVENT(event.slug)}>Sign in to hivai <ArrowUpRight size={16} /></Link>
-        </div>
-      </article>
+
+            <aside className={styles.detailFacts} aria-label="Event information">
+              <div className={styles.detailFact}>
+                <CalendarDays size={18} />
+                <div><strong>{eventDate}</strong><span>{eventDate === endDate ? 'One day event' : `Through ${endDate}`}</span></div>
+              </div>
+              <div className={styles.detailFact}>
+                <MapPin size={18} />
+                <div><strong>{event.mode === 'online' ? 'Online event' : event.venue}</strong><span>{event.mode === 'online' ? 'Joining details shared by organizers' : 'Hosted by ' + (event.owner?.institution?.name ?? 'the campus community')}</span></div>
+              </div>
+              <div className={styles.detailFact}>
+                <Users size={18} />
+                <div><strong>{event.capacity ? `${event.capacity} places` : 'Open attendance'}</strong><span>{event.cost_amount === 0 ? 'Free to attend' : `₹${event.cost_amount} per person`}</span></div>
+              </div>
+            </aside>
+          </div>
+          <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-[var(--color-border)] pt-5">
+            <p className="text-sm text-[var(--color-text-subtle)]">Want to get involved? Sign in to explore this event.</p>
+            <Link className="inline-flex min-h-[44px] items-center gap-2 bg-[var(--color-accent)] px-4 text-sm font-semibold text-[var(--color-accent-contrast)] no-underline" href={ROUTES.APP_EVENT(event.slug)}>Sign in to hivai <ArrowUpRight size={16} /></Link>
+          </div>
+        </article>
+      )}
     </main>
   );
 }

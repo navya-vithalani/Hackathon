@@ -125,6 +125,40 @@ body {
   animation: voice-pulse 1.4s ease-in-out infinite;
 }
 
+.profile-stage {
+  isolation: isolate;
+  position: relative;
+}
+
+.profile-glass {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--color-surface) 86%, transparent), color-mix(in srgb, var(--color-surface-alt) 70%, transparent));
+  border: 1px solid color-mix(in srgb, var(--color-surface) 72%, var(--color-border));
+  box-shadow: var(--shadow-lg), inset 0 1px 0 color-mix(in srgb, var(--color-surface) 90%, transparent);
+  backdrop-filter: blur(20px);
+}
+
+.profile-orb {
+  animation: profile-float 9s ease-in-out infinite alternate;
+  background: radial-gradient(circle, color-mix(in srgb, var(--color-accent) 70%, transparent), transparent 68%);
+  filter: blur(2px);
+  pointer-events: none;
+}
+
+.profile-orb--secondary {
+  animation-delay: -4s;
+  background: radial-gradient(circle, color-mix(in srgb, var(--color-secondary-light) 44%, transparent), transparent 68%);
+}
+
+@keyframes profile-float {
+  from {
+    transform: translate3d(-4%, 0, 0) scale(0.94);
+  }
+  to {
+    transform: translate3d(5%, 8%, 0) scale(1.08);
+  }
+}
+
 @keyframes rise-in {
   from {
     opacity: 0;
@@ -159,20 +193,23 @@ body {
   }
 
   .ai-result,
-  .voice-recording {
+  .voice-recording,
+  .profile-orb {
     animation: none !important;
   }
 }
 
 /* Min tap target for interactive elements */
-button,
-a,
-[role="button"] {
-  min-height: 44px;
-  min-width: 44px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+@layer base {
+  button,
+  a,
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 /* Headings use heading font */

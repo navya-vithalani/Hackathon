@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ArrowRight, Bell, CalendarDays, Plus } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import HomeEventExplorer from '@/app/app/home/HomeEventExplorer';
+import EventCalendar from '@/app/app/home/EventCalendar';
 import { ROUTES } from '@/lib/constants/routes';
 import { MOCK_ANNOUNCEMENTS, MOCK_EVENTS, MOCK_REGISTRATIONS } from '@/mocks';
 import { createClient } from '@/services/supabase/server';
@@ -44,6 +45,8 @@ export default async function AppHomePage() {
           <Plus className="text-[var(--color-secondary)]" size={20} />
         </Link>
       </section>
+
+      <EventCalendar events={events} />
 
       <HomeEventExplorer events={events} />
 

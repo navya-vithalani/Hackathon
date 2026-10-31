@@ -34,8 +34,17 @@ export const MOCK_INSTITUTION: Institution = {
   verified: true,
 }
 
+export const MOCK_GATIK_INSTITUTION: Institution = {
+  id: 'inst-gatik',
+  name: 'Gatik Jr. College',
+  address: 'R.K. Puram, New Delhi, Delhi',
+  provider: 'manual',
+  verified: false,
+}
+
 export const MOCK_INSTITUTIONS: Institution[] = [
   MOCK_INSTITUTION,
+  MOCK_GATIK_INSTITUTION,
   {
     id: 'inst-2',
     name: 'Kendriya Vidyalaya, IIT Delhi',
@@ -59,8 +68,8 @@ export const MOCK_CURRENT_USER: Profile = {
   id: 'user-1',
   full_name: 'Navya Sharma',
   account_type: 'student',
-  institution_id: 'inst-1',
-  institution: MOCK_INSTITUTION,
+  institution_id: MOCK_GATIK_INSTITUTION.id,
+  institution: MOCK_GATIK_INSTITUTION,
   grade: '12',
   stream: 'Science',
   avatar_url: undefined,
@@ -77,6 +86,12 @@ export const MOCK_ORGANIZER: Profile = {
   stream: 'Commerce',
   avatar_url: undefined,
   created_at: '2024-07-15T09:30:00Z',
+}
+
+export const MOCK_XPLORER_ORGANIZER: Profile = {
+  ...MOCK_ORGANIZER,
+  institution_id: MOCK_GATIK_INSTITUTION.id,
+  institution: MOCK_GATIK_INSTITUTION,
 }
 
 export const MOCK_STAFF: Profile = {
@@ -98,54 +113,126 @@ export const MOCK_PROFILES: Profile[] = [
 
 // ---------- Events ----------
 
+const CALENDAR_DEMO_DETAILS = {
+  summary: 'A student-led campus event made for curious minds and new connections.',
+  schedule: [],
+  rules: [],
+  prizes: [],
+  faqs: [],
+  contacts: [],
+  open_questions: [],
+}
+
+function createCalendarDemoEvents(): Event[] {
+  const now = new Date()
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1, 11)
+  const monthLength = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
+  const daySlots = [2, 5, 8, 11, 14, 18, 22, 27]
+  const events = [
+    { title: 'Build for Good: Mini Hackathon', type: 'hackathon', mode: 'offline', venue: 'Innovation Lab', cost: 0 },
+    { title: 'Open Mic Under the Stars', type: 'cultural', mode: 'offline', venue: 'Central Courtyard', cost: 100 },
+    { title: 'Design Your First App', type: 'workshop', mode: 'online', venue: 'Online workshop', cost: 0 },
+    { title: 'Inter-house Badminton Cup', type: 'sports', mode: 'offline', venue: 'Sports Pavilion', cost: 0 },
+    { title: 'Youth Parliament: City Edition', type: 'mun', mode: 'offline', venue: 'Seminar Hall', cost: 150 },
+    { title: 'Startup Pitch Night', type: 'other', mode: 'offline', venue: 'Auditorium', cost: 0 },
+    { title: 'Sketchbook Social', type: 'cultural', mode: 'offline', venue: 'Arts Studio', cost: 50 },
+    { title: 'Study Jam: Finals Edition', type: 'other', mode: 'online', venue: 'Online study room', cost: 0 },
+  ] satisfies {
+    title: string
+    type: Event['type']
+    mode: Event['mode']
+    venue: string
+    cost: number
+  }[]
+
+  return events.map((item, index) => {
+    const date = new Date(monthStart)
+    date.setDate(Math.min(daySlots[index], monthLength))
+    const endsAt = new Date(date)
+    endsAt.setHours(endsAt.getHours() + 3)
+
+    return {
+      id: `evt-demo-${index + 1}`,
+      slug: `campus-demo-${index + 1}`,
+      owner_id: 'user-2',
+      title: item.title,
+      description_structured: CALENDAR_DEMO_DETAILS,
+      type: item.type,
+      mode: item.mode,
+      venue: item.venue,
+      starts_at: date.toISOString(),
+      ends_at: endsAt.toISOString(),
+      cost_amount: item.cost,
+      registration_mode: 'direct',
+      eligibility: { type: 'open', account_types: ['student', 'staff'] },
+      capacity: 80,
+      status: 'published',
+      created_at: new Date(now.getFullYear(), now.getMonth(), 1).toISOString(),
+    } satisfies Event
+  })
+}
+
 export const MOCK_EVENTS: Event[] = [
   {
     id: 'evt-1',
-    slug: 'code-storm-2026',
+    slug: 'xplorer-2026',
     owner_id: 'user-2',
-    owner: MOCK_ORGANIZER,
-    title: 'CodeStorm 2026',
+    owner: MOCK_XPLORER_ORGANIZER,
+    title: 'Xplorer',
     description_structured: {
       summary:
-        'A 24-hour hackathon open to all high school students. Build something that solves a real problem in your school or community.',
+        'Xplorer is a high-energy, overnight buildathon for curious minds who want to turn bold ideas into things people can actually use. Teams will spend 24 hours exploring problems around them, sketching a direction, and building a working prototype with support from mentors across design, product, and code. Beginners are welcome: bring a question, a half-formed idea, or just the urge to make something. Leave with a demo, new collaborators, and a story worth telling.',
       schedule: [
-        { time: '09:00', title: 'Registration & Kit collection' },
-        { time: '10:00', title: 'Hacking begins' },
-        { time: '10:00 (next day)', title: 'Submissions close' },
-        { time: '14:00 (next day)', title: 'Presentations & judging' },
+        { time: '09:00', title: 'Doors open, breakfast & team check-in' },
+        { time: '10:00', title: 'Welcome, challenge reveal & idea sprint' },
+        { time: '12:00', title: 'Build mode begins — mentors on the floor' },
+        { time: '19:00', title: 'Show-and-tell checkpoint & dinner break' },
+        { time: '02:00', title: 'Midnight maker break: snacks, games & fresh eyes' },
+        { time: '08:00', title: 'Final polish and project submissions' },
+        { time: '10:00', title: 'Live demos, awards & closing celebration' },
       ],
       rules: [
-        'Teams of 2–4 members.',
-        'All code must be written during the event.',
-        'Use of public APIs and open-source libraries is allowed.',
+        'Build solo or in a team of up to four people. We can help match solo participants.',
+        'Projects should be created during the event; open-source tools and public APIs are welcome.',
+        'No experience level is required. Thoughtful problem-solving matters more than a perfect pitch.',
+        'Bring a laptop, charger, student ID, and anything that helps you think clearly.',
       ],
-      prizes: ['1st place: ₹10,000', '2nd place: ₹6,000', '3rd place: ₹3,000'],
+      prizes: ['Best Overall Build: ₹10,000 team grant', 'People’s Choice: maker-kit bundle', 'Best First Build: mentor session + project spotlight'],
       faqs: [
         {
-          question: 'Is prior coding experience required?',
-          answer: 'No — beginners are welcome! Mentors will be present.',
+          question: 'Do I need to know how to code?',
+          answer: 'Not at all. Designers, storytellers, researchers, and first-time builders are all welcome.',
+        },
+        {
+          question: 'Can I come without a team?',
+          answer: 'Yes. We will run a friendly team-matching session at check-in.',
+        },
+        {
+          question: 'What should I bring?',
+          answer: 'Bring your laptop, charger, student ID, and a reusable water bottle. Meals and late-night snacks are covered.',
         },
       ],
       contacts: [
-        { name: 'Arjun Mehta', role: 'Lead Organizer', email: 'arjun@dpsrkp.net' },
+        { name: 'Arjun Mehta', role: 'Xplorer student lead' },
+        { name: 'Gatik Innovation Club', role: 'Campus host' },
       ],
-      open_questions: [],
+      open_questions: ['What is one small thing on campus you wish worked better?'],
     },
     type: 'hackathon',
     mode: 'offline',
-    venue: 'DPS RK Puram, Main Hall',
-    starts_at: '2026-12-12T09:00:00Z',
-    ends_at: '2026-12-13T18:00:00Z',
+    venue: 'Gatik Jr. College, Innovation Hall',
+    starts_at: '2026-10-31T03:30:00Z',
+    ends_at: '2026-11-01T04:30:00Z',
     cost_amount: 0,
     registration_mode: 'screened',
     eligibility: {
       type: 'open',
       account_types: ['student'],
     },
-    capacity: 200,
-    cover_url: undefined,
+    capacity: 120,
+    cover_url: 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1800&q=85',
     status: 'published',
-    created_at: '2026-09-10T12:00:00Z',
+    created_at: '2026-10-01T12:00:00Z',
     member_role: 'participant',
   },
   {
@@ -302,6 +389,7 @@ export const MOCK_EVENTS: Event[] = [
     created_at: '2026-10-10T11:00:00Z',
     member_role: 'organizer',
   },
+  ...createCalendarDemoEvents(),
 ]
 
 // ---------- Events by role ----------
@@ -318,7 +406,7 @@ export const MOCK_VOLUNTEERING_EVENTS: Event[] = []
 // ---------- Event Members ----------
 
 export const MOCK_EVENT_MEMBERS: EventMember[] = [
-  { event_id: 'evt-1', profile_id: 'user-2', role: 'owner', profile: MOCK_ORGANIZER },
+  { event_id: 'evt-1', profile_id: 'user-2', role: 'owner', profile: MOCK_XPLORER_ORGANIZER },
   { event_id: 'evt-1', profile_id: 'user-1', role: 'volunteer', profile: MOCK_CURRENT_USER },
   { event_id: 'evt-5', profile_id: 'user-2', role: 'owner', profile: MOCK_ORGANIZER },
   { event_id: 'evt-5', profile_id: 'user-1', role: 'organizer', profile: MOCK_CURRENT_USER },
@@ -467,6 +555,42 @@ export const MOCK_ANNOUNCEMENTS: Announcement[] = [
     body: 'No food or drinks inside the lab. Headphones must be kept in lockers. Repeated violations will result in restricted access.',
     created_at: '2025-02-05T11:00:00Z',
   },
+  {
+    id: 'ann-3',
+    institution_id: 'inst-1',
+    author_id: 'user-3',
+    author: MOCK_STAFF,
+    title: 'Library hours extended during project week',
+    body: 'The senior reading room will stay open until 8 PM this week. Please carry your student ID and keep the quiet zone clear.',
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
+  },
+  {
+    id: 'ann-4',
+    institution_id: 'inst-1',
+    author_id: 'user-3',
+    author: MOCK_STAFF,
+    title: 'Volunteer sign-ups are open',
+    body: 'Help welcome visiting teams at the inter-school showcase. Sign-ups close Friday afternoon at the student activity desk.',
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+  },
+  {
+    id: 'ann-5',
+    institution_id: 'inst-1',
+    author_id: 'user-3',
+    author: MOCK_STAFF,
+    title: 'Bring a reusable bottle to Sports Day',
+    body: 'Water refill stations will be available around the grounds. Let’s keep single-use plastic out of the stands.',
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
+  },
+  {
+    id: 'ann-6',
+    institution_id: 'inst-1',
+    author_id: 'user-3',
+    author: MOCK_STAFF,
+    title: 'Student showcase submissions',
+    body: 'Have a project, performance, or club idea to share? Submit a short description to the activities office by next Wednesday.',
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(),
+  },
 ]
 
 // ---------- Ideas ----------
@@ -502,6 +626,76 @@ export const MOCK_IDEAS: Idea[] = [
     has_voted: false,
     created_at: '2025-01-10T09:00:00Z',
   },
+  {
+    id: 'idea-4',
+    institution_id: 'inst-1',
+    body: 'Could we have a monthly swap shelf for books, art supplies, and sports gear? It would make it easier to pass useful things along.',
+    status: 'under_review',
+    upvote_count: 63,
+    hidden: false,
+    has_voted: false,
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString(),
+  },
+  {
+    id: 'idea-5',
+    institution_id: 'inst-1',
+    body: 'A shaded seating corner near the sports ground would be great for friends waiting between practice sessions.',
+    status: 'new',
+    upvote_count: 28,
+    hidden: false,
+    has_voted: false,
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 18).toISOString(),
+  },
+  {
+    id: 'idea-6',
+    institution_id: 'inst-1',
+    body: 'Can the cafeteria put a small sign next to each snack with allergy information and vegetarian options?',
+    status: 'new',
+    upvote_count: 42,
+    hidden: false,
+    has_voted: true,
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 30).toISOString(),
+  },
+  {
+    id: 'idea-7',
+    institution_id: 'inst-1',
+    body: 'A quiet room during lunch could help students who want to read, recharge, or study somewhere calm.',
+    status: 'under_review',
+    upvote_count: 51,
+    hidden: false,
+    has_voted: false,
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 52).toISOString(),
+  },
+  {
+    id: 'idea-8',
+    institution_id: 'inst-1',
+    body: 'Could clubs share a simple monthly calendar so we can plan around each other and try something new?',
+    status: 'done',
+    upvote_count: 76,
+    hidden: false,
+    has_voted: false,
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(),
+  },
+  {
+    id: 'idea-9',
+    institution_id: 'inst-1',
+    body: 'Let’s host a beginner-friendly chess and board-game afternoon where anyone can drop in.',
+    status: 'new',
+    upvote_count: 34,
+    hidden: false,
+    has_voted: false,
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 96).toISOString(),
+  },
+  {
+    id: 'idea-10',
+    institution_id: 'inst-1',
+    body: 'A student playlist for the annual fest would be fun. Could we collect clean song suggestions from each class?',
+    status: 'under_review',
+    upvote_count: 19,
+    hidden: false,
+    has_voted: false,
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 120).toISOString(),
+  },
 ]
 
 // ---------- Notifications ----------
@@ -511,10 +705,10 @@ export const MOCK_NOTIFICATIONS: Notification[] = [
     id: 'notice-1',
     user_id: 'user-1',
     type: 'registration_status',
-    title: 'You are registered for CodeStorm 2026',
+    title: 'You joined Xplorer',
     body: 'Your place is confirmed. Event details and schedule are ready in your workspace.',
     read: false,
-    link: '/app/event/code-storm-2026',
+    link: '/app/event/xplorer-2026',
     created_at: '2026-10-28T15:00:00Z',
   },
   {
@@ -531,10 +725,10 @@ export const MOCK_NOTIFICATIONS: Notification[] = [
     id: 'notice-3',
     user_id: 'user-1',
     type: 'broadcast',
-    title: 'CodeStorm organizer update',
+    title: 'Xplorer organizer update',
     body: 'Team registration closes one week before the event.',
     read: true,
-    link: '/app/event/code-storm-2026',
+    link: '/app/event/xplorer-2026',
     created_at: '2026-10-25T18:20:00Z',
   },
 ]

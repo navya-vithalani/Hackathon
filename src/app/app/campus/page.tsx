@@ -19,13 +19,13 @@ export default function CampusPage() {
 
       <section aria-labelledby="campus-events-title">
         <div className="mb-4 flex items-end justify-between gap-3"><div><h2 id="campus-events-title" className="font-heading text-xl font-semibold">Around your campus</h2><p className="mt-1 text-xs text-[var(--color-text-subtle)]">Events hosted by your community.</p></div><Link href={ROUTES.APP_HOME} className="inline-flex min-h-[44px] items-center gap-1 text-sm font-semibold text-[var(--color-secondary)]">All events <ArrowRight size={15} /></Link></div>
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">{campusEvents.slice(0, 2).map((event) => <AppEventCard key={event.id} event={event} />)}</div>
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">{campusEvents.map((event) => <AppEventCard key={event.id} event={event} />)}</div>
       </section>
 
       <section aria-labelledby="announcements-title">
         <div className="mb-4 flex items-center gap-2"><Bell size={18} className="text-[var(--color-secondary)]" /><h2 id="announcements-title" className="font-heading text-xl font-semibold">From your staff</h2></div>
         <div className="divide-y divide-[var(--color-border)] border-y border-[var(--color-border)]">
-          {MOCK_ANNOUNCEMENTS.map((announcement) => (
+          {[...MOCK_ANNOUNCEMENTS].sort((a, b) => b.created_at.localeCompare(a.created_at)).map((announcement) => (
             <article key={announcement.id} className="grid gap-2 py-4 sm:grid-cols-[1fr_auto] sm:items-start">
               <div><h3 className="text-sm font-semibold">{announcement.title}</h3><p className="mt-1 max-w-3xl text-sm leading-relaxed text-[var(--color-text-muted)]">{announcement.body}</p><p className="mt-2 text-xs text-[var(--color-text-subtle)]">{announcement.author?.full_name ?? 'Campus staff'} · {formatDate(announcement.created_at)}</p></div>
               <Badge variant="neutral">Announcement</Badge>

@@ -40,7 +40,7 @@ export function AppShell({
         Skip to content
       </a>
       <Sidebar user={user} />
-      <div className="md:ml-[var(--sidebar-width)]">
+      <div className="app-shell-content md:ml-[var(--sidebar-collapsed-width)] md:transition-[margin] md:duration-[var(--duration-slow)] md:ease-[var(--ease-standard)]">
         <TopBar title={title} actions={<SignOutButton />} />
         <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-[var(--content-max-width)] px-[var(--space-4)] py-[var(--space-6)] pb-28 outline-none md:px-[var(--space-8)] md:pb-[var(--space-10)]">
           {children}
