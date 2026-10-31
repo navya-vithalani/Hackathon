@@ -12,7 +12,7 @@ create type account_type as enum ('student', 'staff');
 -- Event enums
 create type event_type as enum ('sports', 'hackathon', 'mun', 'cultural', 'workshop', 'other');
 create type event_mode as enum ('online', 'offline');
-create type event_status as enum ('draft', 'published', 'closed');
+create type event_status as enum ('idea', 'upcoming', 'ongoing', 'completed');
 create type registration_mode as enum ('direct', 'screened');
 
 -- Roles

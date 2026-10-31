@@ -1,42 +1,74 @@
 /**
  * gemini.ts — Gemini Flash implementation of the AI provider interface.
  *
- * Only this file knows about the Gemini API. To swap the AI provider,
- * replace this file and update the imports in ai/index.ts.
- *
- * Key behaviors:
- *  - Uses model 'gemini-2.0-flash-exp' for both generation and transcription.
- *  - Retries up to MAX_RETRIES times with exponential backoff on HTTP 429.
- *  - Validates structured output against the caller's JSON Schema;
- *    retries once on invalid JSON before throwing.
- *  - Throws GeminiError with a user-friendly message on unrecoverable errors.
- *
- * Environment:
- *   GEMINI_API_KEY — Google AI API key (server-side only; never expose to browser).
- *
- * NOTE: This file is a stub. The API call bodies are marked 'Not implemented'.
- * Wire up the real Gemini SDK in Step 3 (AI integration).
+ * The project handles all AI traffic through this file. Feature code never
+ * calls the Gemini SDK directly; it only imports the abstraction in ai/index.ts.
  */
 
+import { GoogleGenAI } from '@google/genai'
+import { z } from 'zod'
 import type { GenerateOptions, GenerateResult } from './index'
 
-// ---------- Constants ----------
-
-const GEMINI_MODEL = 'gemini-2.0-flash-exp'
-const MAX_RETRIES = 3
+const DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash'
+const MAX_RETRIES = 2
 const BASE_BACKOFF_MS = 500
 
-// ---------- Error Type ----------
+function getGeminiClient(): GoogleGenAI {
+  const apiKey = process.env.GEMINI_API_KEY
 
-/**
- * Typed error thrown by all Gemini functions.
- * The `message` field is user-friendly (safe to display in the UI).
- * The `cause` field contains the original error for logging.
- */
+  if (!apiKey) {
+    throw new GeminiError(
+      'AI is not configured yet. Add GEMINI_API_KEY to your local environment.',
+      { status: 500 }
+    )
+  }
+
+  return new GoogleGenAI({ apiKey })
+}
+
+function jsonSchemaToZod(schema: unknown): z.ZodTypeAny {
+  if (!schema || typeof schema !== 'object') {
+    return z.any()
+  }
+
+  const schemaObj = schema as Record<string, unknown>
+
+  if (schemaObj.enum && Array.isArray(schemaObj.enum)) {
+    return z.enum(schemaObj.enum as [string, ...string[]])
+  }
+
+  if (schemaObj.type === 'object' && schemaObj.properties && typeof schemaObj.properties === 'object') {
+    const properties = Object.entries(schemaObj.properties as Record<string, unknown>).reduce(
+      (acc, [key, value]) => {
+        acc[key] = jsonSchemaToZod(value)
+        return acc
+      },
+      {} as Record<string, z.ZodTypeAny>
+    )
+
+    const objectSchema = z.object(properties)
+    return schemaObj.required && Array.isArray(schemaObj.required)
+      ? objectSchema.refine((value) => {
+          const keys = schemaObj.required as string[]
+          return keys.every((key) => key in value)
+        }, 'Missing required JSON fields.')
+      : objectSchema
+  }
+
+  if (schemaObj.type === 'array') {
+    return z.array(jsonSchemaToZod(schemaObj.items ?? z.any()))
+  }
+
+  if (schemaObj.type === 'boolean') return z.boolean()
+  if (schemaObj.type === 'number' || schemaObj.type === 'integer') return z.number()
+  if (schemaObj.type === 'string') return z.string()
+  if (schemaObj.type === 'null') return z.null()
+
+  return z.any()
+}
+
 export class GeminiError extends Error {
-  /** HTTP status code from the Gemini API, if available. */
   readonly status?: number
-  /** The underlying error that caused this failure. */
   readonly cause?: unknown
 
   constructor(message: string, options?: { status?: number; cause?: unknown }) {
@@ -47,92 +79,148 @@ export class GeminiError extends Error {
   }
 }
 
-// ---------- Retry Helper ----------
-
-/**
- * Executes an async operation with exponential backoff on rate-limit (429) errors.
- *
- * @param fn - The async operation to execute.
- * @param retries - Maximum number of retry attempts (not counting the initial try).
- * @returns The resolved value of `fn`.
- * @throws The last error if all retries are exhausted.
- */
-async function withRetry<T>(
-  fn: () => Promise<T>,
-  retries: number = MAX_RETRIES
-): Promise<T> {
+async function withRetry<T>(fn: () => Promise<T>, retries: number = MAX_RETRIES): Promise<T> {
   let lastError: unknown
 
-  for (let attempt = 0; attempt <= retries; attempt++) {
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
     try {
       return await fn()
-    } catch (err) {
-      lastError = err
+    } catch (error) {
+      lastError = error
 
-      const isRateLimit =
-        err instanceof GeminiError && err.status === 429
+      const status = error instanceof GeminiError ? error.status : undefined
+      const isRetryable = status === 429 || status === 503
 
-      if (!isRateLimit || attempt === retries) {
-        throw err
+      if (!isRetryable || attempt === retries) {
+        throw error
       }
 
-      // Exponential backoff: 500ms, 1000ms, 2000ms …
-      const delay = BASE_BACKOFF_MS * Math.pow(2, attempt)
+      const delay = BASE_BACKOFF_MS * 2 ** attempt
       await new Promise((resolve) => setTimeout(resolve, delay))
     }
   }
 
-  // Unreachable but required by TypeScript
   throw lastError
 }
 
-// ---------- Generation ----------
-
-/**
- * Generates a text or structured JSON response using Gemini Flash.
- *
- * @param options - GenerateOptions from ai/index.ts.
- * @returns GenerateResult with text and optional parsed value.
- * @throws {GeminiError} on API error, invalid JSON, or exhausted retries.
- *
- * TODO (Step 3): Replace stub with real @google/generative-ai SDK call.
- */
 export async function generateWithGemini(
   options: GenerateOptions
 ): Promise<GenerateResult> {
-  void options // suppress unused-variable warning in stub
-  void GEMINI_MODEL
+  const client = getGeminiClient()
 
   return withRetry(async () => {
-    throw new GeminiError(
-      'AI is not yet connected. Wire up Gemini in Step 3.',
-      { status: 501 }
-    )
+    const contents = options.messages.map((message) => ({
+      role: message.role === 'user' ? 'user' : 'model',
+      parts: [{ text: message.content }],
+    }))
+
+    const config = {
+      temperature: options.temperature ?? 0.7,
+      ...(options.schema
+        ? {
+            responseMimeType: 'application/json',
+            responseSchema: options.schema,
+          }
+        : {}),
+    }
+
+    const response = await client.models.generateContent({
+      model: process.env.GEMINI_MODEL || DEFAULT_MODEL,
+      contents,
+      config,
+    })
+
+    const rawText = response?.text ?? ''
+
+    if (!rawText.trim()) {
+      throw new GeminiError('AI returned an empty response. Please try again.', {
+        status: 500,
+      })
+    }
+
+    if (options.schema) {
+      try {
+        const parsed = JSON.parse(rawText)
+        const schemaValidator = jsonSchemaToZod(options.schema)
+        const validated = schemaValidator.parse(parsed)
+
+        return {
+          text: rawText,
+          parsed: validated,
+        }
+      } catch (error) {
+        const cause = error instanceof Error ? error : new Error('Invalid AI JSON payload')
+        throw new GeminiError('AI is busy, try again.', {
+          status: 429,
+          cause,
+        })
+      }
+    }
+
+    return { text: rawText }
+  }).catch((error) => {
+    if (error instanceof GeminiError) {
+      throw error
+    }
+
+    const status =
+      typeof error === 'object' && error && 'status' in error
+        ? Number((error as { status?: number }).status)
+        : undefined
+
+    throw new GeminiError('AI is busy, try again.', {
+      status: status && Number.isFinite(status) ? status : 503,
+      cause: error,
+    })
   })
 }
 
-// ---------- Transcription ----------
-
-/**
- * Transcribes audio to text using Gemini's audio-understanding capability.
- *
- * The audio blob (typically webm/opus from MediaRecorder) is base64-encoded
- * and sent as an inline Part to the Gemini Files or inline audio API.
- *
- * @param audioBlob - Raw audio data from the browser's MediaRecorder.
- * @returns The transcribed text string.
- * @throws {GeminiError} on API error or exhausted retries.
- *
- * TODO (Step 3): Replace stub with real @google/generative-ai SDK call.
- */
 export async function transcribeWithGemini(audioBlob: Blob): Promise<string> {
-  void audioBlob // suppress unused-variable warning in stub
-  void GEMINI_MODEL
+  const client = getGeminiClient()
+
+  if (!audioBlob || audioBlob.size === 0) {
+    return ''
+  }
+
+  if (audioBlob.size > 1_000_000) {
+    throw new GeminiError('Recording is too large. Please keep the clip under 1 MB.', {
+      status: 413,
+    })
+  }
+
+  const mimeType = audioBlob.type || 'audio/webm'
+  const data = Buffer.from(await audioBlob.arrayBuffer()).toString('base64')
 
   return withRetry(async () => {
-    throw new GeminiError(
-      'Transcription is not yet connected. Wire up Gemini in Step 3.',
-      { status: 501 }
-    )
+    const response = await client.models.generateContent({
+      model: process.env.GEMINI_MODEL || DEFAULT_MODEL,
+      contents: [
+        {
+          role: 'user',
+          parts: [
+            {
+              text: 'Transcribe the audio. Return only the spoken text and keep the formatting clean.',
+            },
+            {
+              inlineData: {
+                mimeType,
+                data,
+              },
+            },
+          ],
+        },
+      ],
+    })
+
+    return (response?.text || '').trim()
+  }).catch((error) => {
+    if (error instanceof GeminiError) {
+      throw error
+    }
+
+    throw new GeminiError('AI transcription is temporarily unavailable. Please try again.', {
+      status: 503,
+      cause: error,
+    })
   })
 }

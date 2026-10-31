@@ -364,7 +364,7 @@ Each migration file begins with a comment explaining its purpose. RLS policies m
 |---|---|
 | `institutions` | id, name, address, `place_id` (unique), provider (`google`/`osm`/`manual`), verified bool |
 | `profiles` | id (= auth.users.id), full_name, account_type (`student`/`staff`), institution_id, grade, stream, designation, avatar_url |
-| `events` | id, slug (unique), owner_id, title, description_structured (jsonb), type, mode (`online`/`offline`), venue, starts_at, ends_at, cost_amount, payment_qr_url, registration_mode (`direct`/`screened`), screening_criteria (jsonb), eligibility (jsonb), capacity, cover_url, status (`draft`/`published`/`closed`) |
+| `events` | id, slug (unique), owner_id, institution_id, title, description_structured (jsonb), type, mode (`online`/`offline`), venue, starts_at, ends_at, cost_amount, payment_qr_url, registration_mode (`direct`/`screened`), screening_criteria (jsonb), eligibility (jsonb), capacity, cover_url, status (`draft`/`published`/`closed`) |
 | `event_members` | event_id, profile_id, role (`owner`/`organizer`/`volunteer`) *(participants are derived from `registrations`)* |
 | `form_fields` | id, event_id, label, type, options (jsonb), required, position |
 | `registrations` | id, event_id, profile_id, answers (jsonb), payment_status, payment_proof_url, status, checked_in_at, unique(event_id, profile_id) |

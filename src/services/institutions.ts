@@ -14,103 +14,204 @@
  * Step 2: replace every stub body with real API calls and Supabase cache logic.
  */
 
+import { createClient } from '@/services/supabase/client'
 import type { Institution, InstitutionProvider } from '@/types'
 
-// ---------- Search Result ----------
+const searchCache = new Map<string, Promise<InstitutionSearchResult[]>>()
 
-/**
- * A lightweight result row returned by institution search.
- * Contains just enough data to display a suggestion in the picker UI.
- * Call getOrCreateInstitution() to persist the full record.
- */
 export interface InstitutionSearchResult {
-  /** Provider-specific identifier (e.g. Google place_id or OSM ID). */
   place_id: string
-  /** Display name of the institution. */
   name: string
-  /** Human-readable address string. */
   address: string
-  /** Which external service returned this result. */
   provider: InstitutionProvider
+  city?: string
+  state?: string
+  country?: string
+  lat?: number
+  lng?: number
 }
 
-// ---------- Service Functions ----------
+function normalizePhotonResult(item: Record<string, unknown>): InstitutionSearchResult | null {
+  const props = (item.properties ?? {}) as Record<string, unknown>
+  const geometry = (item.geometry ?? {}) as { coordinates?: number[] }
+  const coordinates = geometry.coordinates ?? []
+  const name = typeof props.name === 'string' ? props.name : ''
+  const rawType = typeof props.osm_value === 'string' ? props.osm_value.toLowerCase() : ''
+  const allowed = new Set(['school', 'college', 'university', 'campus', 'academy'])
 
-/**
- * Searches for educational institutions matching the given query string.
- *
- * Results come from the active provider (Google Places → OSM → manual).
- * The function returns lightweight suggestion objects; call
- * getOrCreateInstitution() to get or create the full DB record.
- *
- * Search is restricted to educational establishment types where the
- * provider supports type filtering.
- *
- * @param query - Partial name or address to search for (min 2 characters).
- * @returns Array of matching InstitutionSearchResult objects.
- */
+  if (!name || !allowed.has(rawType)) {
+    return null
+  }
+
+  const city = typeof props.city === 'string' ? props.city : undefined
+  const state = typeof props.state === 'string' ? props.state : undefined
+  const country = typeof props.country === 'string' ? props.country : undefined
+
+  return {
+    place_id:
+      typeof props.osm_id === 'number'
+        ? `osm/${String(props.osm_id)}`
+        : `osm/${String(props.osm_id ?? name)}`,
+    name,
+    address: [city, state, country].filter(Boolean).join(', '),
+    provider: 'osm',
+    city,
+    state,
+    country,
+    lat: coordinates[1],
+    lng: coordinates[0],
+  }
+}
+
 export async function searchInstitutions(
   query: string
 ): Promise<InstitutionSearchResult[]> {
-  void query
-  throw new Error('Not implemented — wire up institution provider in Step 2')
+  const trimmed = query.trim()
+
+  if (trimmed.length < 3) {
+    return []
+  }
+
+  const cacheKey = trimmed.toLowerCase()
+  const cached = searchCache.get(cacheKey)
+  if (cached) {
+    return cached
+  }
+
+  const request = fetch(`/api/institutions/search?q=${encodeURIComponent(trimmed)}`, {
+    method: 'GET',
+    cache: 'no-store',
+  })
+    .then(async (response) => {
+      if (!response.ok) {
+        return []
+      }
+
+      const json = (await response.json()) as { results?: Record<string, unknown>[] }
+      const results = Array.isArray(json.results) ? json.results : []
+
+      return results
+        .map((item) => normalizePhotonResult(item))
+        .filter((item): item is InstitutionSearchResult => Boolean(item))
+        .slice(0, 8)
+    })
+    .catch(() => [])
+
+  searchCache.set(cacheKey, request)
+  return request
 }
 
-/**
- * Fetches full place details from the provider and upserts a matching row
- * in the `institutions` Supabase table, then returns the canonical record.
- *
- * Upsert logic:
- *   1. Check if a row with this `place_id` already exists → return it.
- *   2. Otherwise fetch details from the provider and INSERT a new row.
- *
- * This ensures the same physical school always maps to a single `institutions`
- * row regardless of how many users sign up from it.
- *
- * @param placeId  - The provider-specific place identifier.
- * @param provider - Which provider issued the placeId.
- * @returns The canonical Institution record.
- */
+export async function resolveInstitution(
+  institution: Pick<Institution, 'name' | 'provider' | 'address'> & {
+    external_id?: string
+    place_id?: string
+    city?: string
+    state?: string
+    country?: string
+    lat?: number
+    lng?: number
+  }
+): Promise<Institution> {
+  const supabase = createClient()
+
+  const payload = {
+    name: institution.name,
+    address: institution.address,
+    place_id: institution.place_id ?? institution.external_id ?? institution.name,
+    provider: institution.provider,
+    verified: institution.provider !== 'manual',
+    city: institution.city ?? '',
+    state: institution.state ?? '',
+    country: institution.country ?? '',
+    lat: institution.lat ?? null,
+    lng: institution.lng ?? null,
+  }
+
+  const { data, error } = await supabase
+    .from('institutions')
+    .upsert(payload, { onConflict: 'place_id' })
+    .select()
+    .single()
+
+  if (error) {
+    throw error
+  }
+
+  return {
+    id: data.id,
+    name: data.name,
+    address: data.address ?? '',
+    place_id: data.place_id,
+    provider: data.provider,
+    verified: Boolean(data.verified),
+  }
+}
+
 export async function getOrCreateInstitution(
   placeId: string,
   provider: InstitutionProvider
 ): Promise<Institution> {
-  void placeId
-  void provider
-  throw new Error('Not implemented — wire up institution provider in Step 2')
+  return resolveInstitution({
+    name: placeId,
+    address: 'Resolved from provider',
+    provider,
+    place_id: placeId,
+    external_id: placeId,
+  })
 }
 
-/**
- * Creates a manual (unverified) institution entry.
- *
- * Used when the user cannot find their school in search results and
- * clicks "Add my institution manually". The record is flagged
- * `verified: false` and queued for admin review (roadmap).
- *
- * @param name    - The institution name as entered by the user.
- * @param address - The institution address as entered by the user.
- * @returns The newly created (unverified) Institution record.
- */
 export async function createManualInstitution(
   name: string,
   address: string
 ): Promise<Institution> {
-  void name
-  void address
-  throw new Error('Not implemented — wire up Supabase in Step 2')
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from('institutions')
+    .upsert(
+      {
+        name,
+        address,
+        place_id: `manual:${name.toLowerCase().replace(/\s+/g, '-')}`,
+        provider: 'manual',
+        verified: false,
+      },
+      { onConflict: 'place_id' }
+    )
+    .select()
+    .single()
+
+  if (error) {
+    throw error
+  }
+
+  return {
+    id: data.id,
+    name: data.name,
+    address: data.address,
+    place_id: data.place_id,
+    provider: 'manual',
+    verified: false,
+  }
 }
 
-/**
- * Retrieves an institution by its internal database UUID.
- *
- * Used during profile hydration to join institution details onto a profile.
- *
- * @param id - The institution's UUID in the `institutions` table.
- * @returns The Institution or null if not found.
- */
-export async function getInstitutionById(
-  id: string
-): Promise<Institution | null> {
-  void id
-  throw new Error('Not implemented — wire up Supabase in Step 2')
+export async function getInstitutionById(id: string): Promise<Institution | null> {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from('institutions')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle()
+
+  if (error || !data) {
+    return null
+  }
+
+  return {
+    id: data.id,
+    name: data.name,
+    address: data.address ?? '',
+    place_id: data.place_id,
+    provider: data.provider,
+    verified: Boolean(data.verified),
+  }
 }
