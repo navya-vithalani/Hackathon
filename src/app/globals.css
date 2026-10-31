@@ -89,7 +89,57 @@ html {
 }
 
 body {
+  position: relative;
+  isolation: isolate;
   min-height: 100dvh;
+  background-color: var(--color-bg);
+}
+
+body::before {
+  position: fixed;
+  z-index: 0;
+  inset: -18%;
+  background:
+    radial-gradient(ellipse at 18% 22%, color-mix(in srgb, var(--color-accent) 24%, transparent), transparent 31%),
+    radial-gradient(ellipse at 80% 34%, color-mix(in srgb, var(--color-secondary-light) 12%, transparent), transparent 30%),
+    radial-gradient(ellipse at 62% 86%, color-mix(in srgb, var(--color-accent-light) 20%, transparent), transparent 34%);
+  content: "";
+  pointer-events: none;
+  animation: ambient-drift 34s ease-in-out infinite alternate;
+}
+
+body > div {
+  position: relative;
+  z-index: 1;
+}
+
+.event-preview-card > div:first-child {
+  background-size: 100%;
+  transition: background-size 900ms var(--ease-standard);
+}
+
+.event-preview-card:hover > div:first-child {
+  background-size: 108%;
+}
+
+.event-preview-card h3 {
+  transition: letter-spacing var(--duration-slow) var(--ease-standard);
+}
+
+.event-preview-card:hover h3 {
+  letter-spacing: 0.01em;
+}
+
+@keyframes ambient-drift {
+  0% {
+    transform: translate3d(-1.5%, -1%, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(1.5%, 1%, 0) scale(1.04);
+  }
+  100% {
+    transform: translate3d(-.5%, 1.5%, 0) scale(1.01);
+  }
 }
 
 /* Focus ring: visible only when using keyboard */
@@ -194,8 +244,13 @@ body {
 
   .ai-result,
   .voice-recording,
-  .profile-orb {
+  .profile-orb,
+  body::before {
     animation: none !important;
+  }
+
+  .event-preview-card > div:first-child {
+    transition: none;
   }
 }
 

@@ -20,11 +20,11 @@ export function AppEventCard({ event, registered = false }: AppEventCardProps) {
   const isXplorer = event.slug === 'xplorer-2026';
 
   return (
-    <Card variant="flat" className={`min-w-0 overflow-hidden bg-[var(--color-surface)] ${isXplorer ? 'shadow-[var(--shadow-lg)]' : ''}`}>
+    <Card variant="flat" className={`event-preview-card group min-w-0 overflow-hidden bg-[var(--color-surface)] transition-all duration-[var(--duration-slow)] hover:-translate-y-1 hover:shadow-[var(--shadow-lg)] ${isXplorer ? 'shadow-[var(--shadow-lg)]' : ''}`}>
       <div
-        className={`relative flex min-h-[112px] items-center justify-between gap-4 bg-[var(--color-surface-dark)] px-[var(--space-5)] text-[var(--color-text-inverse)] ${isXplorer ? 'min-h-[205px] bg-cover bg-center px-6 py-5 sm:px-7' : ''}`}
-        style={isXplorer && event.cover_url ? {
-          backgroundImage: `linear-gradient(90deg, rgba(35, 10, 10, .94), rgba(35, 10, 10, .62)), url("${event.cover_url}")`,
+        className={`relative flex min-h-[190px] items-end justify-between gap-4 bg-[var(--color-surface-dark)] bg-cover bg-center px-[var(--space-5)] py-5 text-[var(--color-text-inverse)] ${isXplorer ? 'min-h-[205px] px-6 py-5 sm:px-7' : ''}`}
+        style={event.cover_url ? {
+          backgroundImage: `linear-gradient(0deg, rgba(35, 10, 10, .93) 0%, rgba(35, 10, 10, .66) 52%, rgba(35, 10, 10, .22) 100%), url("${event.cover_url}")`,
         } : undefined}
       >
         <div>
@@ -38,7 +38,7 @@ export function AppEventCard({ event, registered = false }: AppEventCardProps) {
         </div>
         {isXplorer ? (
           <span className="absolute right-4 top-4 rounded-full border border-white/30 bg-black/20 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-white">Featured</span>
-        ) : <span aria-hidden="true" className="text-3xl">{typeIcon}</span>}
+        ) : <span aria-hidden="true" className="absolute right-4 top-4 grid size-10 place-items-center rounded-full border border-white/30 bg-black/20 text-xl text-white backdrop-blur-sm">{typeIcon}</span>}
       </div>
       <div className="flex flex-col gap-4 p-[var(--space-5)]">
         <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs text-[var(--color-text-subtle)]">

@@ -51,7 +51,30 @@ export function Modal({ open, onClose, title, size = 'md', children, className }
   // Close on Escape key
   React.useEffect(() => {
     if (!open) return;
-    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+
+      if (e.key !== 'Tab' || !panelRef.current) return;
+      const focusable = Array.from(
+        panelRef.current.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((element) => element.offsetParent !== null);
+      if (!focusable.length) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
   }, [open, onClose]);
@@ -64,7 +87,15 @@ export function Modal({ open, onClose, title, size = 'md', children, className }
 
   // Focus the panel when it opens
   React.useEffect(() => {
-    if (open) panelRef.current?.focus();
+    if (!open) return;
+    const previousFocus = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
+    const firstFocusable = panelRef.current?.querySelector<HTMLElement>(
+      'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])',
+    );
+    (firstFocusable ?? panelRef.current)?.focus();
+    return () => previousFocus?.focus();
   }, [open]);
 
   return (
@@ -80,7 +111,7 @@ export function Modal({ open, onClose, title, size = 'md', children, className }
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
           onClick={onClose}
-          aria-hidden="true"
+          role="presentation"
         >
           {/* Panel — stop propagation so clicks inside don't close the modal */}
           <motion.div

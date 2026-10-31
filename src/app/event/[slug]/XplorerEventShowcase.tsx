@@ -154,18 +154,7 @@ export default function XplorerEventShowcase({ event }: { event: Event }) {
         </div>
       </section>
 
-      <section className={styles.xplorerRegister} id="register">
-        <div className={styles.xplorerRegisterIntro}>
-          <p className={styles.xplorerEyebrow}>YOUR NEXT BIG THING STARTS HERE</p>
-          <h2>Come make a little <em>magic.</em></h2>
-          <p>Tell us the basics and we’ll save you a place in this demo. You can come solo — we’ll help you find your people.</p>
-          <div className={styles.xplorerRegisterNote}><BadgeCheck size={16} /> Free to join · Beginners welcome · Teams up to 4</div>
-        </div>
-        <div className={styles.xplorerFormCard}>
-          <div className={styles.xplorerFormHeading}><span>01 / YOUR SPOT</span><strong>Let’s get you in.</strong></div>
-          <XplorerRegistrationForm />
-        </div>
-      </section>
+      <XplorerRegistrationForm />
 
       <footer className={styles.xplorerFooter}>
         <span>MADE WITH CURIOSITY AT GATIK JR. COLLEGE</span>

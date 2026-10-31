@@ -126,7 +126,15 @@ export default function EventDiscovery() {
             <span className={styles.featuredLabel}>UP NEXT</span>
             <span className={styles.featuredIndex}>01 / {String(publishedEvents.length).padStart(2, '0')}</span>
           </div>
-          <div className={styles.featuredArtwork} aria-hidden="true">
+          <div
+            className={styles.featuredArtwork}
+            aria-hidden="true"
+            style={featuredEvent.cover_url ? {
+              backgroundImage: `linear-gradient(180deg, rgba(46, 11, 10, .2), rgba(46, 11, 10, .72)), url("${featuredEvent.cover_url}")`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            } : undefined}
+          >
             <span className={styles.artworkOrbit} />
             <svg className={styles.artworkHoneycomb} viewBox="0 0 300 220" fill="none" aria-hidden="true">
               <path d="M56 17 82 32v30L56 77 30 62V32l26-15Zm93 0 26 15v30l-26 15-26-15V32l26-15Zm93 0 26 15v30l-26 15-26-15V32l26-15ZM102 96l26 15v30l-26 15-26-15v-30l26-15Zm93 0 26 15v30l-26 15-26-15v-30l26-15ZM56 175l26 15v30l-26 15-26-15v-30l26-15Zm93 0 26 15v30l-26 15-26-15v-30l26-15Zm93 0 26 15v30l-26 15-26-15v-30l26-15Z" />
@@ -214,7 +222,14 @@ export default function EventDiscovery() {
           <ScrollReveal className={styles.eventGrid}>
             {filteredEvents.map((event, index) => (
               <article className={styles.eventCard} key={event.id}>
-                <Link className={styles.eventArtwork} data-type={event.type} href={`/event/${event.slug}`}>
+                <Link
+                  className={styles.eventArtwork}
+                  data-type={event.type}
+                  href={`/event/${event.slug}`}
+                  style={event.cover_url ? {
+                    backgroundImage: `linear-gradient(0deg, rgba(35, 10, 10, .7), rgba(35, 10, 10, .18)), url("${event.cover_url}")`,
+                  } : undefined}
+                >
                   <span className={styles.artworkNumber}>0{index + 1}</span>
                   <span className={styles.artworkType}>{EVENT_TYPE_LABELS[event.type]}</span>
                   <span className={styles.artworkSymbol} aria-hidden="true">{event.type === 'hackathon' ? '</>' : event.type === 'mun' ? 'MUN' : event.type === 'sports' ? 'GO' : 'LAB'}</span>

@@ -129,20 +129,21 @@ function createCalendarDemoEvents(): Event[] {
   const monthLength = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
   const daySlots = [2, 5, 8, 11, 14, 18, 22, 27]
   const events = [
-    { title: 'Build for Good: Mini Hackathon', type: 'hackathon', mode: 'offline', venue: 'Innovation Lab', cost: 0 },
-    { title: 'Open Mic Under the Stars', type: 'cultural', mode: 'offline', venue: 'Central Courtyard', cost: 100 },
-    { title: 'Design Your First App', type: 'workshop', mode: 'online', venue: 'Online workshop', cost: 0 },
-    { title: 'Inter-house Badminton Cup', type: 'sports', mode: 'offline', venue: 'Sports Pavilion', cost: 0 },
-    { title: 'Youth Parliament: City Edition', type: 'mun', mode: 'offline', venue: 'Seminar Hall', cost: 150 },
-    { title: 'Startup Pitch Night', type: 'other', mode: 'offline', venue: 'Auditorium', cost: 0 },
-    { title: 'Sketchbook Social', type: 'cultural', mode: 'offline', venue: 'Arts Studio', cost: 50 },
-    { title: 'Study Jam: Finals Edition', type: 'other', mode: 'online', venue: 'Online study room', cost: 0 },
+    { title: 'Build for Good: Mini Hackathon', type: 'hackathon', mode: 'offline', venue: 'Innovation Lab', cost: 0, image: 'photo-1519389950473-47ba0277781c' },
+    { title: 'Open Mic Under the Stars', type: 'cultural', mode: 'offline', venue: 'Central Courtyard', cost: 100, image: 'photo-1506157786151-b8491531f063' },
+    { title: 'Design Your First App', type: 'workshop', mode: 'online', venue: 'Online workshop', cost: 0, image: 'photo-1516321318423-f06f85e504b3' },
+    { title: 'Inter-house Badminton Cup', type: 'sports', mode: 'offline', venue: 'Sports Pavilion', cost: 0, image: 'photo-1461896836934-ffe607ba8211' },
+    { title: 'Youth Parliament: City Edition', type: 'mun', mode: 'offline', venue: 'Seminar Hall', cost: 150, image: 'photo-1523240795612-9a054b0db644' },
+    { title: 'Startup Pitch Night', type: 'other', mode: 'offline', venue: 'Auditorium', cost: 0, image: 'photo-1556761175-b413da4baf72' },
+    { title: 'Sketchbook Social', type: 'cultural', mode: 'offline', venue: 'Arts Studio', cost: 50, image: 'photo-1513364776144-60967b0f800f' },
+    { title: 'Study Jam: Finals Edition', type: 'other', mode: 'online', venue: 'Online study room', cost: 0, image: 'photo-1434030216411-0b793f4b4173' },
   ] satisfies {
     title: string
     type: Event['type']
     mode: Event['mode']
     venue: string
     cost: number
+    image: string
   }[]
 
   return events.map((item, index) => {
@@ -166,6 +167,7 @@ function createCalendarDemoEvents(): Event[] {
       registration_mode: 'direct',
       eligibility: { type: 'open', account_types: ['student', 'staff'] },
       capacity: 80,
+      cover_url: `https://images.unsplash.com/${item.image}?auto=format&fit=crop&w=1200&q=80`,
       status: 'published',
       created_at: new Date(now.getFullYear(), now.getMonth(), 1).toISOString(),
     } satisfies Event
@@ -265,6 +267,7 @@ export const MOCK_EVENTS: Event[] = [
     type: 'mun',
     mode: 'offline',
     venue: 'DPS RK Puram, Auditorium',
+    cover_url: 'https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=1200&q=80',
     starts_at: '2027-01-23T08:30:00Z',
     ends_at: '2027-01-25T17:00:00Z',
     cost_amount: 500,
@@ -302,6 +305,7 @@ export const MOCK_EVENTS: Event[] = [
     type: 'sports',
     mode: 'offline',
     venue: 'DPS RK Puram, Sports Complex',
+    cover_url: 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?auto=format&fit=crop&w=1200&q=80',
     starts_at: '2026-11-20T07:30:00Z',
     ends_at: '2026-11-20T17:00:00Z',
     cost_amount: 0,
@@ -343,6 +347,7 @@ export const MOCK_EVENTS: Event[] = [
     type: 'workshop',
     mode: 'online',
     venue: undefined,
+    cover_url: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80',
     starts_at: '2026-12-05T10:00:00Z',
     ends_at: '2026-12-05T17:00:00Z',
     cost_amount: 0,
@@ -377,6 +382,7 @@ export const MOCK_EVENTS: Event[] = [
     type: 'cultural',
     mode: 'offline',
     venue: 'DPS RK Puram, Auditorium & Grounds',
+    cover_url: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=1200&q=80',
     starts_at: '2027-02-06T09:00:00Z',
     ends_at: '2027-02-07T20:00:00Z',
     cost_amount: 200,
