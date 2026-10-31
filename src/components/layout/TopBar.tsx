@@ -9,7 +9,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Bell } from 'lucide-react';
+import { ArrowLeft, Bell, Hexagon } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { ROUTES } from '@/lib/constants/routes';
 import type { ReactNode } from 'react';
@@ -82,10 +82,11 @@ export function TopBar({
         /* Logo — visible on mobile; sidebar carries it on desktop */
         <Link
           href={ROUTES.APP_HOME}
-          aria-label="Evently home"
+          aria-label="hivai home"
           className="flex items-center gap-2 md:hidden font-heading font-bold text-lg text-[var(--color-text)]"
         >
-          Evently
+          <Hexagon size={19} className="text-[var(--color-secondary)]" aria-hidden="true" />
+          hivai
         </Link>
       )}
 

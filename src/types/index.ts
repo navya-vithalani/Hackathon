@@ -1,5 +1,5 @@
 /**
- * src/types/index.ts — Shared TypeScript types for the entire Evently app.
+ * src/types/index.ts — Shared TypeScript types for the entire hivai app.
  * Used by all components, server actions, API routes, and utilities.
  */
 

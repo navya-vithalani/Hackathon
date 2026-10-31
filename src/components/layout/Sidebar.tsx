@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils/cn';
 import { MAIN_NAV, INBOX_NAV } from '@/lib/constants/nav';
 import { ROUTES } from '@/lib/constants/routes';
 import { Avatar } from '@/components/ui/Avatar';
+import { Hexagon } from 'lucide-react';
 import type { Profile } from '@/types';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -50,9 +51,9 @@ export function Sidebar({ user, notificationCount = 0 }: SidebarProps) {
         <Link
           href={ROUTES.APP_HOME}
           className="font-heading font-bold text-xl text-[var(--color-text)] hover:opacity-80 transition-opacity"
-          aria-label="Evently home"
+          aria-label="hivai home"
         >
-          Evently
+          <span className="flex items-center gap-2"><Hexagon size={19} className="text-[var(--color-secondary)]" aria-hidden="true" /> hivai</span>
         </Link>
       </div>
 

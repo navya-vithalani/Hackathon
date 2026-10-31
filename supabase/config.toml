@@ -1,4 +1,4 @@
-# Supabase project config for Evently
+# Supabase project config for hivai
 # Run: supabase init (already done), supabase db push to apply migrations
 
 [api]

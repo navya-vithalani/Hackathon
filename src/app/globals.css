@@ -79,6 +79,7 @@ html {
   font-family: var(--font-body);
   color: var(--color-text);
   background-color: var(--color-bg);
+  scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   /* iOS safe area support */
@@ -98,6 +99,24 @@ body {
   border-radius: var(--radius-sm);
 }
 
+.scroll-reveal {
+  opacity: 1;
+  translate: 0 0;
+  transition:
+    opacity 650ms var(--ease-out),
+    translate 650ms var(--ease-out);
+}
+
+.scroll-reveal[data-reveal-ready="true"]:not([data-reveal-visible="true"]) {
+  opacity: 0;
+  translate: 0 20px;
+}
+
+.scroll-reveal[data-reveal-visible="true"] {
+  opacity: 1;
+  translate: 0 0;
+}
+
 /* Respect reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -107,6 +126,11 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .scroll-reveal {
+    opacity: 1 !important;
+    translate: 0 0 !important;
   }
 }
 

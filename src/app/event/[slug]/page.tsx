@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, ArrowUpRight, CalendarDays, MapPin, Users } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, CalendarDays, Hexagon, MapPin, Users } from 'lucide-react';
 import type { Metadata } from 'next';
 import { EVENT_TYPE_LABELS } from '@/lib/constants/eventTypes';
 import { ROUTES } from '@/lib/constants/routes';
@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: PageProps<'/event/[slug]'>): 
   return {
     title: event.title,
     description,
-    openGraph: { type: 'article', title: event.title, description, siteName: 'Evently' },
+    openGraph: { type: 'article', title: event.title, description, siteName: 'hivai' },
   };
 }
 
@@ -46,7 +46,7 @@ export default async function EventPage({ params }: PageProps<'/event/[slug]'>) 
     <main className={styles.detailPage}>
       <header className={styles.detailHeader}>
         <Link className={styles.backLink} href="/#events"><ArrowLeft size={16} /> All events</Link>
-        <Link href="/" className={styles.brand}><span className={styles.brandMark}>E</span><span>evently</span></Link>
+        <Link href="/" className={styles.brand}><span className={styles.brandMark}><Hexagon size={18} aria-hidden="true" /></span><span>hivai</span></Link>
         <Link href="/#events">Discover <ArrowUpRight size={15} /></Link>
       </header>
 
@@ -93,8 +93,8 @@ export default async function EventPage({ params }: PageProps<'/event/[slug]'>) 
           </aside>
         </div>
         <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-[var(--color-border)] pt-5">
-          <p className="text-sm text-[var(--color-text-subtle)]">Interested? Explore this event in the app preview.</p>
-          <Link className="inline-flex min-h-[44px] items-center gap-2 bg-[var(--color-accent)] px-4 text-sm font-semibold text-[var(--color-accent-contrast)] no-underline" href={ROUTES.APP_EVENT(event.slug)}>Open event workspace <ArrowUpRight size={16} /></Link>
+          <p className="text-sm text-[var(--color-text-subtle)]">Want to get involved? Sign in to explore this event.</p>
+          <Link className="inline-flex min-h-[44px] items-center gap-2 bg-[var(--color-accent)] px-4 text-sm font-semibold text-[var(--color-accent-contrast)] no-underline" href={ROUTES.APP_EVENT(event.slug)}>Sign in to hivai <ArrowUpRight size={16} /></Link>
         </div>
       </article>
     </main>

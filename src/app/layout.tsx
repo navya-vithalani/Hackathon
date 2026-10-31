@@ -38,26 +38,30 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Evently — Student Events Platform",
-    template: "%s | Evently",
+    default: "hivai — Find your people",
+    template: "%s | hivai",
   },
   description:
-    "Create, discover, register for, and manage student events — from school sports days to college hackathons to inter-school MUNs.",
+    "Find your campus people, events, and ideas with hivai — a little more connection, a lot more happening.",
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon.svg",
+  },
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Evently",
+    title: "hivai",
   },
   formatDetection: {
     telephone: false,
   },
   openGraph: {
     type: "website",
-    siteName: "Evently",
-    title: "Evently — Student Events Platform",
+    siteName: "hivai",
+    title: "hivai — Find your people",
     description:
-      "Create, discover, register for, and manage student events with AI-powered screening.",
+      "Find campus events, meet your people, and make ideas happen together.",
   },
 };
 
@@ -65,7 +69,6 @@ export const viewport: Viewport = {
   themeColor: "#D2A24E",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
   viewportFit: "cover",
 };
 
@@ -79,13 +82,14 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      data-scroll-behavior="smooth"
       className={`${playfairDisplay.variable} ${plusJakartaSans.variable} ${jetbrainsMono.variable}`}
     >
       <head>
         {/* iOS standalone web app meta tags */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Evently" />
+        <meta name="apple-mobile-web-app-title" content="hivai" />
       </head>
       <body className="font-body antialiased">
         {children}

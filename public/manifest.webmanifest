@@ -1,7 +1,7 @@
 {
-  "name": "Evently",
-  "short_name": "Evently",
-  "description": "Create, discover, register for, and manage student events",
+  "name": "hivai",
+  "short_name": "hivai",
+  "description": "Find your campus people, events, and ideas",
   "start_url": "/app/home",
   "scope": "/",
   "display": "standalone",

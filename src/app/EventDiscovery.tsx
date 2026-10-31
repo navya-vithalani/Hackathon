@@ -1,15 +1,17 @@
 'use client';
 
-import { useState, useSyncExternalStore } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
-import { ArrowDown, ArrowRight, Bookmark, CalendarDays, MapPin, Search, Sparkles } from 'lucide-react';
+import { ArrowDown, ArrowRight, Bookmark, CalendarDays, Hexagon, MapPin, Search, Sparkles } from 'lucide-react';
 import { EVENT_TYPE_LABELS, EVENT_TYPES } from '@/lib/constants/eventTypes';
 import { MOCK_EVENTS } from '@/mocks';
+import { ScrollReveal } from '@/components/ui/ScrollReveal';
 import type { EventType } from '@/types';
 import styles from './discovery.module.css';
 
-const SAVE_KEY = 'evently:saved-events';
-const SAVE_EVENT = 'evently:saved-events-change';
+const SAVE_KEY = 'hivai:saved-events';
+const LEGACY_SAVE_KEY = 'evently:saved-events';
+const SAVE_EVENT = 'hivai:saved-events-change';
 
 function subscribeToSavedEvents(onChange: () => void) {
   window.addEventListener('storage', onChange);
@@ -22,7 +24,7 @@ function subscribeToSavedEvents(onChange: () => void) {
 
 function getSavedEventsSnapshot() {
   try {
-    const saved = window.localStorage.getItem(SAVE_KEY);
+    const saved = window.localStorage.getItem(SAVE_KEY) ?? window.localStorage.getItem(LEGACY_SAVE_KEY);
     if (!saved) return '[]';
     const parsed: unknown = JSON.parse(saved);
     return Array.isArray(parsed) && parsed.every((slug) => typeof slug === 'string') ? saved : '[]';
@@ -44,6 +46,7 @@ export default function EventDiscovery() {
   const [query, setQuery] = useState('');
   const [activeType, setActiveType] = useState<EventType | 'all'>('all');
   const [savedOnly, setSavedOnly] = useState(false);
+  const searchRef = useRef<HTMLInputElement>(null);
   const savedSnapshot = useSyncExternalStore(subscribeToSavedEvents, getSavedEventsSnapshot, () => '[]');
   const savedEvents = JSON.parse(savedSnapshot) as string[];
 
@@ -57,6 +60,21 @@ export default function EventDiscovery() {
     return matchesType && matchesQuery && matchesSaved;
   });
 
+  useEffect(() => {
+    function focusSearch(event: KeyboardEvent) {
+      if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey) return;
+      if (event.target instanceof HTMLElement &&
+        (event.target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(event.target.tagName))) {
+        return;
+      }
+      event.preventDefault();
+      searchRef.current?.focus();
+    }
+
+    window.addEventListener('keydown', focusSearch);
+    return () => window.removeEventListener('keydown', focusSearch);
+  }, []);
+
   function toggleSaved(slug: string) {
     const nextSaved = savedEvents.includes(slug)
       ? savedEvents.filter((savedSlug) => savedSlug !== slug)
@@ -68,9 +86,9 @@ export default function EventDiscovery() {
   return (
     <main className={styles.page}>
       <header className={styles.header}>
-        <Link className={styles.brand} href="/" aria-label="Evently home">
-          <span className={styles.brandMark}>E</span>
-          <span>evently</span>
+        <Link className={styles.brand} href="/" aria-label="hivai home">
+          <span className={styles.brandMark}><Hexagon size={20} aria-hidden="true" /></span>
+          <span>hivai</span>
         </Link>
         <nav className={styles.nav} aria-label="Main navigation">
           <a className={styles.navActive} href="#events">Discover</a>
@@ -80,30 +98,39 @@ export default function EventDiscovery() {
             type="button"
             onClick={() => setSavedOnly((current) => !current)}
             aria-pressed={savedOnly}
+            aria-label={savedOnly ? 'Show all events' : 'Show saved events'}
           >
             <Bookmark size={15} aria-hidden="true" />
-            Saved <span className={styles.savedCount}>{savedEvents.length}</span>
+            <span className={styles.savedLabel}>Saved</span>
+            <span className={styles.savedCount}>{savedEvents.length}</span>
           </button>
         </nav>
-        <Link className={styles.headerLink} href="/app/home">Open app preview <ArrowRight size={15} /></Link>
+        <div className={styles.headerActions}>
+          <Link className={styles.headerLink} href="/login">Sign in</Link>
+          <Link className={styles.headerAction} href="/signup">Join hivai <ArrowRight size={15} /></Link>
+        </div>
       </header>
 
       <section className={styles.hero} aria-labelledby="hero-title">
-        <div className={styles.heroCopy}>
-          <p className={styles.eyebrow}><Sparkles size={14} /> THE CAMPUS CALENDAR</p>
+        <ScrollReveal className={styles.heroCopy}>
+          <p className={styles.eyebrow}><Sparkles size={14} /> FIND YOUR CAMPUS HIVE</p>
           <h1 id="hero-title">Good things<br />happen <em>together.</em></h1>
           <p className={styles.heroDescription}>
-            Find the hackathons, ideas, and late-afternoon plans worth showing up for.
+            Find your people, your next big idea, and the events worth showing up for.
           </p>
           <a className={styles.heroAction} href="#events">Explore events <ArrowDown size={16} /></a>
-        </div>
-        <div className={styles.featured} data-type={featuredEvent.type}>
+        </ScrollReveal>
+        <ScrollReveal className={styles.featured} delay={120}>
+          <div data-type={featuredEvent.type}>
           <div className={styles.featuredTop}>
             <span className={styles.featuredLabel}>UP NEXT</span>
-            <span className={styles.featuredIndex}>01 / 04</span>
+            <span className={styles.featuredIndex}>01 / {String(publishedEvents.length).padStart(2, '0')}</span>
           </div>
           <div className={styles.featuredArtwork} aria-hidden="true">
             <span className={styles.artworkOrbit} />
+            <svg className={styles.artworkHoneycomb} viewBox="0 0 300 220" fill="none" aria-hidden="true">
+              <path d="M56 17 82 32v30L56 77 30 62V32l26-15Zm93 0 26 15v30l-26 15-26-15V32l26-15Zm93 0 26 15v30l-26 15-26-15V32l26-15ZM102 96l26 15v30l-26 15-26-15v-30l26-15Zm93 0 26 15v30l-26 15-26-15v-30l26-15ZM56 175l26 15v30l-26 15-26-15v-30l26-15Zm93 0 26 15v30l-26 15-26-15v-30l26-15Zm93 0 26 15v30l-26 15-26-15v-30l26-15Z" />
+            </svg>
             <span className={styles.artworkCode}>&lt;/&gt;</span>
             <span className={styles.artworkCaption}>MAKE<br />SOMETHING<br />MATTERS</span>
           </div>
@@ -116,17 +143,18 @@ export default function EventDiscovery() {
               <ArrowRight size={19} />
             </Link>
           </div>
-        </div>
+          </div>
+        </ScrollReveal>
         <span className={styles.heroIndex}>01 — DISCOVER</span>
       </section>
 
       <section className={styles.howSection} id="how-it-works" aria-labelledby="how-title">
-        <div className={styles.howIntro}>
+        <ScrollReveal className={styles.howIntro}>
           <p className={styles.eyebrow}>ONE PLACE, FULL CIRCLE</p>
           <h2 id="how-title">From first idea<br />to <em>showing up.</em></h2>
-          <p>Evently gives organizers and students one shared place to make campus life easier to join.</p>
-        </div>
-        <div className={styles.howGrid}>
+          <p>hivai brings organizers and students together so campus life feels easier to join.</p>
+        </ScrollReveal>
+        <ScrollReveal className={styles.howGrid} delay={100}>
           <article className={styles.howTrack}>
             <p className={styles.howLabel}>FOR ORGANIZERS</p>
             <h3>Make it happen.</h3>
@@ -139,7 +167,7 @@ export default function EventDiscovery() {
             <ol><li><span>01</span>Discover events around your campus.</li><li><span>02</span>Register and keep your plans together.</li><li><span>03</span>Show up, take part, make something.</li></ol>
             <Link href="/app/home">Explore the app <ArrowRight size={15} /></Link>
           </article>
-        </div>
+        </ScrollReveal>
       </section>
 
       <section className={styles.eventsSection} id="events" aria-labelledby="events-title">
@@ -156,6 +184,7 @@ export default function EventDiscovery() {
             <Search size={17} aria-hidden="true" />
             <span className={styles.visuallyHidden}>Search events</span>
             <input
+              ref={searchRef}
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search events, places, ideas..."
@@ -182,7 +211,7 @@ export default function EventDiscovery() {
         </div>
 
         {filteredEvents.length > 0 ? (
-          <div className={styles.eventGrid}>
+          <ScrollReveal className={styles.eventGrid}>
             {filteredEvents.map((event, index) => (
               <article className={styles.eventCard} key={event.id}>
                 <Link className={styles.eventArtwork} data-type={event.type} href={`/event/${event.slug}`}>
@@ -216,7 +245,7 @@ export default function EventDiscovery() {
                 </div>
               </article>
             ))}
-          </div>
+          </ScrollReveal>
         ) : (
           <div className={styles.emptyState}>
             <Bookmark size={22} />
@@ -228,8 +257,8 @@ export default function EventDiscovery() {
       </section>
 
       <footer className={styles.footer}>
-        <Link className={styles.brand} href="/" aria-label="Evently home">
-          <span className={styles.brandMark}>E</span><span>evently</span>
+        <Link className={styles.brand} href="/" aria-label="hivai home">
+          <span className={styles.brandMark}><Hexagon size={18} aria-hidden="true" /></span><span>hivai</span>
         </Link>
         <span>Made for the people who make campus.</span>
         <a href="#events">Back to events ↑</a>

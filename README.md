@@ -1,6 +1,6 @@
-# Evently
+# hivai
 
-Evently is a campus events MVP preview built with Next.js, TypeScript, and Tailwind CSS. The public site and app shell run on sample data and do not require credentials.
+hivai is a campus connection and events platform built with Next.js, TypeScript, and Tailwind CSS. Public event discovery uses sample events; account access is handled by Supabase Auth.
 
 ## Run locally
 
@@ -19,22 +19,26 @@ npm run build
 npm run start
 ```
 
+## Configure authentication
+
+Copy `.env.example` to `.env.local` and set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `NEXT_PUBLIC_APP_URL` (`http://localhost:3000` for local development). Apply the SQL files in `supabase/migrations/` to the Supabase project. In Supabase Auth URL Configuration, set the Site URL and add the exact callback URL to the redirect allowlist (`http://localhost:3000/auth/callback` locally). Add the equivalent callback URL for each deployed app origin; if you use `127.0.0.1` locally, allow that origin separately.
+
+Signup supports both Supabase email-confirmation settings: with confirmation enabled, users verify through `/auth/callback`; with it disabled, they enter the app immediately. Login, sign-out, resend verification, and password reset use the same cookie-backed Supabase session. Without Supabase configuration, public discovery still works and protected app routes redirect to a clear setup message.
+
 ## Deploy to Vercel
 
-1. Push this repository to GitHub, GitLab, or Bitbucket.
-2. In Vercel, choose **Add New → Project** and import the repository.
-3. Keep **Next.js** as the framework preset and use the repository root as the Root Directory.
-4. Keep the default build settings (`npm run build`, with no custom output directory).
-5. Leave environment variables empty for this mock-data preview, then select **Deploy**.
-
-The deployed preview does not use Supabase. To prepare for the separately wired live-data services, copy `.env.example` to `.env.local` locally and add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in Vercel Project Settings → Environment Variables. Live authentication, registrations, and AI event structuring still need their service integration before those values change the preview behavior.
+1. Import the repository in Vercel and keep the repository root as the Root Directory.
+2. Keep the default Next.js build settings (`npm run build`, with no custom output directory).
+3. Add `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `NEXT_PUBLIC_APP_URL` in Project Settings → Environment Variables.
+4. Add the deployed app origin and `/auth/callback` to the Supabase Auth redirect allowlist, then deploy.
 
 ## Preview scope
 
-- `/` is the public landing page with organizer/student paths and a searchable event showcase; `/events` jumps to the public calendar.
+- `/` is the hivai landing page with organizer/student paths, a searchable event showcase, bookmarks, and keyboard `/` search; `/events` jumps to the public calendar.
 - `/event/[slug]` shows a statically generated, share-metadata-ready public event page.
+- `/login`, `/signup`, `/verify-email`, `/forgot-password`, and `/reset-password` provide account flows. `/app/*` is protected by the Supabase session proxy and server-side user checks.
 - `/app/home`, `/app/my-events`, `/app/create`, `/app/campus`, and `/app/profile` are the five responsive app tabs. Inbox opens from the bell; event cards open a role-aware event workspace.
 - The Home feed filters by type, online/in-person, cost, date range, and registration state. Campus ideas, inbox read-state, event drafts, and role previews are local demo interactions.
 - Sample records live in `src/mocks/index.ts`; publish a record there to include it in the discovery page and generated routes.
-- Saved events are stored in the visitor's browser. Authentication, registration submission, persistence for app actions, live database data, and AI calls are not connected yet.
+- Saved events are stored in the visitor's browser. Event records, registration submission, app actions, and AI calls remain demo data/interactions.
 - Theme tokens are in `src/styles/tokens.css`; the PWA manifest is `public/manifest.webmanifest`.

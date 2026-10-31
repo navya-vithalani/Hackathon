@@ -10,6 +10,7 @@
 
 import { createBrowserClient } from '@supabase/ssr'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { getSupabaseConfig } from '@/services/supabase/config'
 
 // ---------- Client Factory ----------
 
@@ -26,8 +27,10 @@ import type { SupabaseClient } from '@supabase/supabase-js'
  * @returns A configured SupabaseClient instance.
  */
 export function createClient(): SupabaseClient {
+  const { url, anonKey } = getSupabaseConfig()
+
   return createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    url,
+    anonKey
   )
 }

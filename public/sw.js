@@ -1,16 +1,9 @@
-const CACHE_NAME = 'evently-shell-v1';
+const CACHE_NAME = 'hivai-shell-v2';
 const APP_SHELL = [
   '/',
-  '/app/home',
-  '/app/my-events',
-  '/app/create',
-  '/app/campus',
-  '/app/campus/ideas',
-  '/app/profile',
-  '/app/profile/id',
-  '/app/inbox',
   '/offline.html',
 ];
+const PRIVATE_PATHS = ['/app', '/auth', '/login', '/signup', '/verify-email', '/forgot-password', '/reset-password'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
@@ -28,7 +21,9 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
     const keys = await caches.keys();
-    await Promise.all(keys.filter((key) => key.startsWith('evently-') && key !== CACHE_NAME).map((key) => caches.delete(key)));
+    await Promise.all(keys
+      .filter((key) => (key.startsWith('hivai-') || key.startsWith('evently-')) && key !== CACHE_NAME)
+      .map((key) => caches.delete(key)));
     await self.clients.claim();
   })());
 });
@@ -39,15 +34,17 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET' || url.origin !== self.location.origin) return;
 
   if (request.mode === 'navigate') {
+    const isPrivatePage = PRIVATE_PATHS.some((path) => url.pathname === path || url.pathname.startsWith(`${path}/`));
     event.respondWith((async () => {
       try {
         const response = await fetch(request);
-        if (response.ok) {
+        if (response.ok && !isPrivatePage) {
           const cache = await caches.open(CACHE_NAME);
           await cache.put(request, response.clone());
         }
         return response;
       } catch {
+        if (isPrivatePage) return await caches.match('/offline.html');
         return await caches.match(request) || await caches.match('/offline.html');
       }
     })());

@@ -1,4 +1,4 @@
-/** AppShell.tsx — Shared responsive frame for the mock authenticated app. */
+/** AppShell.tsx — Shared responsive frame for authenticated pages. */
 
 'use client';
 
@@ -6,8 +6,9 @@ import { usePathname } from 'next/navigation';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { TopBar } from '@/components/layout/TopBar';
+import { SignOutButton } from '@/components/auth/SignOutButton';
 import { ROUTES } from '@/lib/constants/routes';
-import { MOCK_CURRENT_USER } from '@/mocks';
+import type { Profile } from '@/types';
 
 const PAGE_TITLES: Record<string, string> = {
   [ROUTES.APP_HOME]: 'Home',
@@ -19,15 +20,21 @@ const PAGE_TITLES: Record<string, string> = {
 };
 
 /** Supplies the desktop sidebar, mobile tabs, page title, and notification entry. */
-export function AppShell({ children }: Readonly<{ children: React.ReactNode }>) {
+export function AppShell({
+  children,
+  user,
+}: Readonly<{
+  children: React.ReactNode;
+  user: Pick<Profile, 'full_name' | 'avatar_url'>;
+}>) {
   const pathname = usePathname();
-  const title = PAGE_TITLES[pathname] ?? (pathname.includes('/event/') ? 'Event workspace' : 'Evently');
+  const title = PAGE_TITLES[pathname] ?? (pathname.includes('/event/') ? 'Event workspace' : 'hivai');
 
   return (
     <div className="min-h-screen bg-[var(--color-bg)]">
-      <Sidebar user={MOCK_CURRENT_USER} notificationCount={2} />
+      <Sidebar user={user} notificationCount={2} />
       <div className="md:ml-[var(--sidebar-width)]">
-        <TopBar title={title} notificationCount={2} />
+        <TopBar title={title} notificationCount={2} actions={<SignOutButton />} />
         <main className="mx-auto w-full max-w-[var(--content-max-width)] px-[var(--space-4)] py-[var(--space-6)] pb-28 md:px-[var(--space-8)] md:pb-[var(--space-10)]">
           {children}
         </main>

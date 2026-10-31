@@ -389,7 +389,7 @@ insert into announcements (id, institution_id, author_id, title, body) values
     'a1000000-0000-0000-0000-000000000001',
     'b1000000-0000-0000-0000-000000000004',
     'Registrations Open: DPS MUN 2026',
-    'Dear students, registrations for our annual Model United Nations conference are now open on Evently. This year we have 6 committees covering climate, tech governance, and conflict resolution. Seats are limited to 150 delegates. The registration fee is ₹500. Last date to register: 10 November 2026. All the best!'
+    'Dear students, registrations for our annual Model United Nations conference are now open on hivai. This year we have 6 committees covering climate, tech governance, and conflict resolution. Seats are limited to 150 delegates. The registration fee is ₹500. Last date to register: 10 November 2026. All the best!'
   )
 on conflict (id) do nothing;
 

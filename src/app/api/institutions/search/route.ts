@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
 
   const response = await fetch(`${PHOTON_BASE}?${params.toString()}`, {
     headers: {
-      'User-Agent': 'Evently/1.0 (campus events demo; local request)',
+      'User-Agent': 'hivai/1.0 (campus events platform; local request)',
       Accept: 'application/json',
     },
     cache: 'no-store',

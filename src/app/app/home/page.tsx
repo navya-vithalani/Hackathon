@@ -3,20 +3,31 @@ import { ArrowRight, Bell, CalendarDays, Plus } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import HomeEventExplorer from '@/app/app/home/HomeEventExplorer';
 import { ROUTES } from '@/lib/constants/routes';
-import { MOCK_ANNOUNCEMENTS, MOCK_CURRENT_USER, MOCK_EVENTS, MOCK_REGISTRATIONS } from '@/mocks';
+import { MOCK_ANNOUNCEMENTS, MOCK_EVENTS, MOCK_REGISTRATIONS } from '@/mocks';
+import { createClient } from '@/services/supabase/server';
+import { redirect } from 'next/navigation';
 
-export default function AppHomePage() {
+export default async function AppHomePage() {
+  const supabase = await createClient();
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error) throw new Error(`Could not verify the current user: ${error.message}`);
+  if (!user) redirect('/login?redirectTo=%2Fapp%2Fhome');
+
+  const fullName = user.user_metadata?.full_name;
+  const firstName = typeof fullName === 'string' && fullName.trim()
+    ? fullName.trim().split(/\s+/)[0]
+    : user.email?.split('@')[0] ?? 'there';
   const events = MOCK_EVENTS.filter((event) => event.status === 'published');
 
   return (
     <>
       <section className="flex flex-wrap items-end justify-between gap-5 border-b border-[var(--color-border)] pb-[var(--space-6)]">
         <div>
-          <p className="mb-2 text-xs font-bold uppercase tracking-[0.12em] text-[var(--color-secondary)]">Student dashboard</p>
+          <p className="mb-2 text-xs font-bold uppercase tracking-[0.12em] text-[var(--color-secondary)]">Campus dashboard</p>
           <h1 className="font-heading text-3xl font-semibold">Your campus, happening.</h1>
-          <p className="mt-2 text-sm text-[var(--color-text-muted)]">Welcome back, {MOCK_CURRENT_USER.full_name.split(' ')[0]}.</p>
+          <p className="mt-2 text-sm text-[var(--color-text-muted)]">Welcome back, {firstName}.</p>
         </div>
-        <Badge variant="outline">{MOCK_CURRENT_USER.institution?.name}</Badge>
+        <Badge variant="outline">Sample events</Badge>
       </section>
 
       <section aria-label="Your activity" className="grid grid-cols-1 gap-3 py-[var(--space-5)] sm:grid-cols-3">
