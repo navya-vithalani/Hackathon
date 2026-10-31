@@ -14,7 +14,7 @@ const anonClient = createClient(url, anonKey, {
   },
 })
 
-async function expect(condition: boolean, message: string) {
+function expect(condition: boolean, message: string) {
   if (!condition) {
     throw new Error(message)
   }
@@ -22,17 +22,17 @@ async function expect(condition: boolean, message: string) {
 
 async function main() {
   console.log('RLS checks require a linked Supabase project and seeded demo users.')
-  console.log('This script is a template for validating the production ruleset.')
+  console.log('This script performs an events-read smoke check only.')
 
-  await expect(Boolean(url), 'Supabase URL is configured.')
-  await expect(Boolean(anonKey), 'Supabase anon key is configured.')
+  expect(Boolean(url), 'Supabase URL is configured.')
+  expect(Boolean(anonKey), 'Supabase anon key is configured.')
 
   const { error } = await anonClient.from('events').select('id').limit(1)
   if (error) {
-    console.warn('Event query is blocked or table is unavailable:', error.message)
+    throw new Error(`Could not query events for the RLS smoke check: ${error.message}`)
   }
 
-  console.log('RLS validation placeholder passed. Run against the linked project to enforce the full checks.')
+  console.log('Events-read smoke check passed. This does not validate the full RLS ruleset.')
 }
 
 main().catch((error) => {

@@ -16,6 +16,7 @@ const PAGE_TITLES: Record<string, string> = {
   [ROUTES.APP_CREATE]: 'Create an event',
   [ROUTES.APP_CAMPUS]: 'Campus',
   [ROUTES.APP_PROFILE]: 'Your profile',
+  [ROUTES.APP_PROFILE_ID]: 'Digital campus ID',
   [ROUTES.APP_INBOX]: 'Inbox',
 };
 
@@ -28,14 +29,20 @@ export function AppShell({
   user: Pick<Profile, 'full_name' | 'avatar_url'>;
 }>) {
   const pathname = usePathname();
-  const title = PAGE_TITLES[pathname] ?? (pathname.includes('/event/') ? 'Event workspace' : 'hivai');
+  const title = PAGE_TITLES[pathname] ?? (pathname.startsWith('/app/event/') ? 'Event workspace' : 'hivai');
 
   return (
     <div className="min-h-screen bg-[var(--color-bg)]">
-      <Sidebar user={user} notificationCount={2} />
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-[var(--space-4)] focus:top-[var(--space-4)] focus:z-[var(--z-tooltip)] focus:rounded-[var(--radius-md)] focus:bg-[var(--color-surface)] focus:px-[var(--space-4)] focus:py-[var(--space-3)] focus:text-[var(--color-text)] focus:shadow-[var(--shadow-lg)]"
+      >
+        Skip to content
+      </a>
+      <Sidebar user={user} />
       <div className="md:ml-[var(--sidebar-width)]">
-        <TopBar title={title} notificationCount={2} actions={<SignOutButton />} />
-        <main className="mx-auto w-full max-w-[var(--content-max-width)] px-[var(--space-4)] py-[var(--space-6)] pb-28 md:px-[var(--space-8)] md:pb-[var(--space-10)]">
+        <TopBar title={title} actions={<SignOutButton />} />
+        <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-[var(--content-max-width)] px-[var(--space-4)] py-[var(--space-6)] pb-28 outline-none md:px-[var(--space-8)] md:pb-[var(--space-10)]">
           {children}
         </main>
       </div>

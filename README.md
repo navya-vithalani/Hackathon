@@ -19,9 +19,11 @@ npm run build
 npm run start
 ```
 
-## Configure authentication
+## Configure authentication and AI
 
-Copy `.env.example` to `.env.local` and set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `NEXT_PUBLIC_APP_URL` (`http://localhost:3000` for local development). Apply the SQL files in `supabase/migrations/` to the Supabase project. In Supabase Auth URL Configuration, set the Site URL and add the exact callback URL to the redirect allowlist (`http://localhost:3000/auth/callback` locally). Add the equivalent callback URL for each deployed app origin; if you use `127.0.0.1` locally, allow that origin separately.
+Copy `.env.example` to `.env.local` and set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `NEXT_PUBLIC_APP_URL` (`http://localhost:3000` for local development). For the event structuring assistant and voice transcription, also set the server-only `GEMINI_API_KEY`; `GEMINI_MODEL` defaults to `gemini-3.8-flash`. Never expose or commit `.env.local`.
+
+Apply the SQL files in `supabase/migrations/` to the Supabase project. In Supabase Auth URL Configuration, set the Site URL and add the exact callback URL to the redirect allowlist (`http://localhost:3000/auth/callback` locally). Add the equivalent callback URL for each deployed app origin; if you use `127.0.0.1` locally, allow that origin separately. Sign in to use the protected event studio and AI endpoints.
 
 Signup supports both Supabase email-confirmation settings: with confirmation enabled, users verify through `/auth/callback`; with it disabled, they enter the app immediately. Login, sign-out, resend verification, and password reset use the same cookie-backed Supabase session. Without Supabase configuration, public discovery still works and protected app routes redirect to a clear setup message.
 
@@ -38,7 +40,7 @@ Signup supports both Supabase email-confirmation settings: with confirmation ena
 - `/event/[slug]` shows a statically generated, share-metadata-ready public event page.
 - `/login`, `/signup`, `/verify-email`, `/forgot-password`, and `/reset-password` provide account flows. `/app/*` is protected by the Supabase session proxy and server-side user checks.
 - `/app/home`, `/app/my-events`, `/app/create`, `/app/campus`, and `/app/profile` are the five responsive app tabs. Inbox opens from the bell; event cards open a role-aware event workspace.
-- The Home feed filters by type, online/in-person, cost, date range, and registration state. Campus ideas, inbox read-state, event drafts, and role previews are local demo interactions.
+- The Home feed filters by type, online/in-person, cost, date range, and registration state. The event studio can turn typed notes or a short voice recording into an AI-generated outline; saving and publishing that draft, campus ideas, inbox read-state, and role previews remain demo interactions.
 - Sample records live in `src/mocks/index.ts`; publish a record there to include it in the discovery page and generated routes.
-- Saved events are stored in the visitor's browser. Event records, registration submission, app actions, and AI calls remain demo data/interactions.
+- Saved events are stored in the visitor's browser. Event records, registration submission, and app actions remain demo data/interactions.
 - Theme tokens are in `src/styles/tokens.css`; the PWA manifest is `public/manifest.webmanifest`.

@@ -64,7 +64,7 @@ export function Sidebar({ user, notificationCount = 0 }: SidebarProps) {
             const Icon = item.icon;
             const isActive = item.exact
               ? pathname === item.href
-              : pathname.startsWith(item.href);
+              : pathname === item.href || pathname.startsWith(`${item.href}/`);
             const isInbox = item.href === INBOX_NAV.href;
 
             return (
@@ -102,10 +102,14 @@ export function Sidebar({ user, notificationCount = 0 }: SidebarProps) {
         <div className="shrink-0 border-t border-[var(--color-border)] p-[var(--space-3)]">
           <Link
             href={ROUTES.APP_PROFILE}
+            aria-current={pathname === ROUTES.APP_PROFILE || pathname.startsWith(`${ROUTES.APP_PROFILE}/`) ? 'page' : undefined}
             className={cn(
               'flex items-center gap-[var(--space-3)] rounded-[var(--radius-md)]',
               'px-[var(--space-3)] py-[var(--space-2)] min-h-[44px]',
-              'hover:bg-[var(--color-hover-overlay)] transition-colors',
+              'transition-colors duration-[var(--duration-base)]',
+              pathname === ROUTES.APP_PROFILE || pathname.startsWith(`${ROUTES.APP_PROFILE}/`)
+                ? 'bg-[var(--color-accent)] text-[var(--color-accent-contrast)]'
+                : 'hover:bg-[var(--color-hover-overlay)]',
             )}
           >
             <Avatar

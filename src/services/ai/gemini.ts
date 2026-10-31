@@ -1,3 +1,5 @@
+import 'server-only'
+
 /**
  * gemini.ts — Gemini Flash implementation of the AI provider interface.
  *
@@ -9,8 +11,8 @@ import { GoogleGenAI } from '@google/genai'
 import { z } from 'zod'
 import type { GenerateOptions, GenerateResult } from './index'
 
-const DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash'
-const MAX_RETRIES = 2
+const DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-3.8-flash'
+const MAX_RETRIES = 1
 const BASE_BACKOFF_MS = 500
 
 function getGeminiClient(): GoogleGenAI {
@@ -88,10 +90,17 @@ async function withRetry<T>(fn: () => Promise<T>, retries: number = MAX_RETRIES)
     } catch (error) {
       lastError = error
 
-      const status = error instanceof GeminiError ? error.status : undefined
+      const status = error instanceof GeminiError
+        ? error.status
+        : typeof error === 'object' && error !== null && 'status' in error
+          ? Number(error.status)
+          : undefined
       const isRetryable = status === 429 || status === 503
 
       if (!isRetryable || attempt === retries) {
+        if (isRetryable && !(error instanceof GeminiError)) {
+          throw new GeminiError('AI is busy, try again.', { status, cause: error })
+        }
         throw error
       }
 
@@ -116,6 +125,7 @@ export async function generateWithGemini(
 
     const config = {
       temperature: options.temperature ?? 0.7,
+      ...(options.system ? { systemInstruction: options.system } : {}),
       ...(options.schema
         ? {
             responseMimeType: 'application/json',
