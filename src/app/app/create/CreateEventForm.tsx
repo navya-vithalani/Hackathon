@@ -7,6 +7,7 @@ import { EVENT_TYPES } from '@/lib/constants/eventTypes';
 import { structureEvent } from '@/services/ai/client';
 import { useVoiceInput } from '@/lib/hooks/useVoiceInput';
 import type { EventStructureResult } from '@/lib/schemas/ai';
+import EventFolderPreview from './EventFolderPreview';
 
 export default function CreateEventForm() {
   const [title, setTitle] = useState('');
@@ -122,12 +123,13 @@ export default function CreateEventForm() {
       </form>
 
       <aside aria-label="Live event preview" className="h-fit overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-md)] xl:sticky xl:top-24">
-        <div className="relative overflow-hidden bg-[var(--color-surface-dark)] p-6 text-[var(--color-text-inverse)]">
-          <div className="pointer-events-none absolute -right-10 -top-14 size-44 rounded-full border border-[var(--color-accent)] opacity-30" />
-          <div className="relative flex items-center gap-2 text-[var(--color-accent-light)]"><Sparkles size={17} /><p className="text-xs font-bold uppercase tracking-[0.12em]">Event studio</p></div>
-          <h2 className="relative mt-3 font-heading text-2xl font-semibold">{title || 'Your next big idea'}</h2>
-          <p className="relative mt-2 text-sm leading-relaxed opacity-80">A clearer event, ready to share with your campus.</p>
-        </div>
+        <EventFolderPreview
+          title={title}
+          eventType={eventType}
+          eventLabel={eventLabel}
+          date={date}
+          venue={venue}
+        />
         <div className="space-y-5 p-5 sm:p-6">
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-[var(--radius-md)] bg-[var(--color-surface-alt)] p-3"><span className="flex items-center gap-1.5 text-xs text-[var(--color-text-subtle)]"><CalendarDays size={14} /> Date</span><strong className="mt-1 block truncate text-sm">{date || 'To be decided'}</strong></div>

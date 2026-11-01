@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HIVAI · Physical 3D Event Mechanism</title>
+  <style>
+    /* ==========================================================================
+       HIVAI STANDALONE PHYSICAL 3D MECHANISM
+       Self-contained file: Zero dependencies, runs anywhere.
+       Includes: Leon Vasari 6-Face 3D Folder + AXON Particle Fluid Background
+       ========================================================================== */
+
+    :root {
+      --bg: #070709;
+      --text: #fff4d6;
+      --muted: #a39f93;
+      --primary: #ffbf00;
+      --folder-accent: #ffbf00;
+      --folder-ink: #1e1b12;
+      --radius: 16px;
+      --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Ambient Animated Liquid Glow Orbs */
+    .ambient-glow {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      will-change: transform;
+    }
+    .orb-1 {
+      top: -10%;
+      right: -10%;
+      width: 55vw;
+      height: 55vw;
+      background: radial-gradient(circle, rgba(229, 184, 66, 0.08) 0%, rgba(255, 191, 0, 0.03) 45%, transparent 70%);
+      animation: orbFloat1 24s ease-in-out infinite alternate;
+    }
+    .orb-2 {
+      bottom: -15%;
+      left: -10%;
+      width: 60vw;
+      height: 60vw;
+      background: radial-gradient(circle, rgba(184, 134, 11, 0.07) 0%, rgba(255, 244, 214, 0.02) 50%, transparent 75%);
+      animation: orbFloat2 30s ease-in-out infinite alternate;
+    }
+    .cad-grid {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(to right, rgba(255, 244, 214, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 244, 214, 0.02) 1px, transparent 1px);
+      background-size: 56px 56px;
+      mask-image: radial-gradient(circle at 50% 50%, black 40%, transparent 90%);
+      -webkit-mask-image: radial-gradient(circle at 50% 50%, black 40%, transparent 90%);
+    }
+
+    @keyframes orbFloat1 {
+      0% { transform: translate3d(0, 0, 0) scale(1); }
+      50% { transform: translate3d(-50px, 35px, 0) scale(1.1); }
+      100% { transform: translate3d(-25px, 70px, 0) scale(0.95); }
+    }
+    @keyframes orbFloat2 {
+      0% { transform: translate3d(0, 0, 0) scale(1); }
+      50% { transform: translate3d(60px, -45px, 0) scale(1.12); }
+      100% { transform: translate3d(35px, -25px, 0) scale(0.92); }
+    }
+
+    #bgCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Header */
+    header {
+      position: relative;
+      z-index: 10;
+      padding: 24px 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 244, 214, 0.08);
+      background: rgba(11, 11, 15, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+    }
+    .brand-mark {
+      width: 32px;
+      height: 32px;
+      border: 1px solid rgba(255, 191, 0, 0.4);
+      background: rgba(255, 191, 0, 0.08);
+      color: var(--primary);
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      font-size: 0.9rem;
+    }
+    .badge {
+      font-size: 0.7rem;
+      padding: 5px 12px;
+      color: var(--primary);
+      background: rgba(255, 191, 0, 0.08);
+      border: 1px solid rgba(255, 191, 0, 0.25);
+      border-radius: 100px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* Main Workspace Layout */
+    main {
+      position: relative;
+      z-index: 10;
+      flex: 1;
+      max-width: 1360px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 40px 32px;
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+    @media (max-width: 960px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Liquid Glass Card */
+    .glass-card {
+      background: rgba(20, 21, 24, 0.75);
+      border: 1px solid rgba(255, 244, 214, 0.12);
+      border-radius: var(--radius);
+      padding: 32px;
+      box-shadow: 
+        inset 0 1px 0 rgba(255, 244, 214, 0.08),
+        0 20px 48px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    .form-title {
+      font-size: 1.35rem;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    .form-subtitle {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    /* Form Fields */
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 20px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: #dfdbcd;
+    }
+    .input, select {
+      width: 100%;
+      min-height: 44px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(8, 9, 12, 0.85);
+      padding: 10px 14px;
+      color: var(--text);
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .input:focus, select:focus {
+      border-color: var(--primary);
+      background: rgba(12, 13, 18, 0.95);
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 46px;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: #121006;
+      width: 100%;
+    }
+    .btn-primary:hover {
+      background: #ffd552;
+      transform: translateY(-1px);
+    }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.15);
+      color: var(--text);
+      width: 100%;
+      margin-top: 10px;
+    }
+    .btn-secondary:hover {
+      background: rgba(255, 191, 0, 0.1);
+      border-color: rgba(255, 191, 0, 0.4);
+    }
+
+    /* ==========================================================================
+       THE PHYSICAL 3D EVENT FOLDER MECHANISM
+       ========================================================================== */
+    .stage-wrapper {
+      position: sticky;
+      top: 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .stage-eyebrow {
+      font-family: ui-monospace, monospace;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--primary);
+      margin-bottom: 20px;
+    }
+
+    .folder-stage {
+      width: 100%;
+      height: 520px;
+      perspective: 1400px;
+      display: grid;
+      place-items: center;
+      user-select: none;
+    }
+
+    .folder-pose {
+      transform-style: preserve-3d;
+      transform: rotateY(-18deg) rotateX(10deg);
+      transition: transform 0.25s ease-out;
+      will-change: transform;
+    }
+
+    .folder {
+      position: relative;
+      width: 260px;
+      height: 340px;
+      transform-style: preserve-3d;
+    }
+
+    .face {
+      position: absolute;
+      box-sizing: border-box;
+      transform-style: preserve-3d;
+    }
+
+    /* Back Face */
+    .back {
+      inset: 0;
+      border-radius: 6px;
+      background: linear-gradient(110deg, #242522, #131513);
+      transform: translateZ(-13px) rotateY(180deg);
+      box-shadow: inset 0 0 0 1px rgba(246, 223, 154, 0.15);
+    }
+
+    /* Spine */
+    .spine {
+      width: 26px;
+      height: 340px;
+      left: 0;
+      top: 0;
+      transform: translateX(-13px) rotateY(-90deg);
+      background: linear-gradient(90deg, #191a17, var(--folder-ink) 45%, #4b4125 88%, #151611);
+      border-top: 1px solid rgba(214, 184, 112, 0.5);
+      border-bottom: 1px solid rgba(214, 184, 112, 0.3);
+      box-shadow: inset 1px 0 rgba(234, 223, 178, 0.28), inset -1px 0 #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: var(--folder-accent);
+    }
+    .spine-brand {
+      font: 6px ui-monospace, monospace;
+      letter-spacing: 0.1em;
+      margin-top: 13px;
+      white-space: nowrap;
+    }
+    .spine-title {
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      font-size: 11px;
+      letter-spacing: 0.035em;
+      position: absolute;
+      top: 44px;
+      bottom: 62px;
+      overflow: hidden;
+      max-width: 19px;
+      color: #fff0c9;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    .spine-cat {
+      position: absolute;
+      bottom: 10px;
+      writing-mode: vertical-rl;
+      font: 7px ui-monospace, monospace;
+      text-transform: uppercase;
+      max-height: 48px;
+      overflow: hidden;
+    }
+
+    /* Fore Edge & Edges */
+    .fore-edge {
+      width: 26px;
+      height: 340px;
+      left: 247px;
+      top: 0;
+      transform: rotateY(90deg);
+      background: repeating-linear-gradient(90deg, #8d8269 0 1px, #d1c4a5 1px 2px, #534d3e 2px 3px);
+      border-top: 6px solid #20211d;
+      border-bottom: 6px solid #20211d;
+    }
+    .top-edge, .bottom-edge {
+      width: 260px;
+      height: 26px;
+      left: 0;
+      background: repeating-linear-gradient(#b7a98c 0 1px, #544c3c 1px 2px, #d0c2a5 2px 3px);
+      border-left: 7px solid #2b2b23;
+      border-right: 5px solid #24251f;
+    }
+    .top-edge {
+      top: -13px;
+      transform: rotateX(90deg);
+    }
+    .bottom-edge {
+      top: 327px;
+      transform: rotateX(-90deg);
+      filter: brightness(0.5);
+    }
+
+    /* Paper Block Inside */
+    .paper-block {
+      transform-style: preserve-3d;
+      position: absolute;
+      inset: 7px 5px 7px 7px;
+      background: #d0c5aa;
+      transform: translateZ(9px);
+      border-radius: 3px;
+      box-shadow: inset 14px 0 22px rgba(0, 0, 0, 0.5);
+    }
+    .paper-writing {
+      position: absolute;
+      inset: 0;
+      transform: translateZ(3.25px);
+      padding: 30px 22px;
+      color: #40392b;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      font: 9px ui-monospace, monospace;
+    }
+    .paper-writing small {
+      font-size: 7px;
+      border-bottom: 1px solid rgba(135, 120, 84, 0.4);
+      padding-bottom: 14px;
+      letter-spacing: 0.12em;
+    }
+    .paper-writing strong {
+      font-size: 18px;
+      line-height: 1.2;
+      letter-spacing: -0.03em;
+      color: #211c12;
+      overflow-wrap: anywhere;
+    }
+    .paper-writing b {
+      margin-top: auto;
+      align-self: flex-start;
+      padding: 4px 8px;
+      border: 1px solid #82714d;
+      font-size: 7px;
+      transform: rotate(-6deg);
+    }
+
+    /* Front Cover Leaf & Hinge Mechanism */
+    .cover-hinge {
+      position: absolute;
+      inset: 0;
+      transform: translateZ(13px);
+      transform-style: preserve-3d;
+    }
+    .cover-leaf {
+      position: absolute;
+      inset: 0;
+      transform-style: preserve-3d;
+      transform-origin: left center;
+      transition: transform 0.65s var(--ease);
+      cursor: pointer;
+    }
+    .cover-leaf.open {
+      transform: rotateY(-124deg);
+    }
+
+    /* Front Face */
+    .front {
+      inset: 0;
+      border-radius: 5px 9px 9px 5px;
+      background: linear-gradient(112deg, #292b25, var(--folder-ink) 47%, #171914);
+      box-shadow: 
+        inset 0 0 0 1px rgba(210, 186, 120, 0.28),
+        inset 5px 0 7px rgba(0, 0, 0, 0.4),
+        7px 9px 14px rgba(0, 0, 0, 0.25);
+      overflow: hidden;
+    }
+    .front::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(110deg, rgba(255, 244, 214, 0.08), transparent 23%, transparent 75%, rgba(255, 191, 0, 0.05));
+      box-shadow: inset -1px 0 rgba(246, 211, 123, 0.35);
+    }
+
+    /* Category Tab */
+    .folder-tab {
+      position: absolute;
+      top: -12px;
+      left: 10px;
+      height: 22px;
+      width: 112px;
+      padding: 3px 8px;
+      background: var(--folder-ink);
+      border: 1px solid rgba(198, 174, 109, 0.4);
+      border-bottom: 0;
+      border-radius: 7px 9px 0 0;
+      font: 7px ui-monospace, monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--folder-accent);
+      clip-path: polygon(0 0, 87% 0, 100% 100%, 0 100%);
+      z-index: 5;
+    }
+
+    /* Cover Artwork Image Layer */
+    .cover-artwork {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.55;
+      mask-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.4) 40%, transparent 80%);
+      -webkit-mask-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.4) 40%, transparent 80%);
+      display: none;
+    }
+    .cover-artwork.visible {
+      display: block;
+    }
+
+    /* Procedural Geometric Art Fallback */
+    .procedural-art {
+      position: absolute;
+      top: 40px;
+      right: 20px;
+      width: 140px;
+      height: 140px;
+      opacity: 0.35;
+      display: grid;
+      place-items: center;
+      pointer-events: none;
+    }
+    .procedural-art i {
+      position: absolute;
+      border: 1px solid var(--folder-accent);
+      border-radius: 6px;
+      transform: rotate(45deg);
+    }
+    .procedural-art i:nth-child(1) { width: 30px; height: 30px; }
+    .procedural-art i:nth-child(2) { width: 60px; height: 60px; }
+    .procedural-art i:nth-child(3) { width: 90px; height: 90px; }
+    .procedural-art i:nth-child(4) { width: 120px; height: 120px; }
+
+    /* Cover Typography */
+    .cover-print {
+      position: absolute;
+      inset: 28px 24px 24px 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 6px;
+      color: #f2e6c7;
+      z-index: 2;
+    }
+    .archive-number {
+      position: absolute;
+      top: 0;
+      font: 7px ui-monospace, monospace;
+      letter-spacing: 0.12em;
+      color: var(--folder-accent);
+    }
+    .cover-print h3 {
+      font-size: 24px;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      font-weight: 700;
+      color: #fff4d6;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+      overflow-wrap: anywhere;
+    }
+    .cover-rule {
+      height: 1px;
+      width: 44px;
+      background: var(--folder-accent);
+      margin: 6px 0;
+    }
+    .cover-meta {
+      font: 8px ui-monospace, monospace;
+      color: #dfd8c5;
+      letter-spacing: 0.04em;
+    }
+    .status-stamp {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      border: 1px solid rgba(229, 184, 66, 0.4);
+      padding: 3px 6px;
+      font: 6px ui-monospace, monospace;
+      color: var(--folder-accent);
+      text-transform: uppercase;
+      transform: rotate(-4deg);
+    }
+    .angled-label {
+      position: absolute;
+      left: 10px;
+      top: 110px;
+      font: 6px ui-monospace, monospace;
+      transform: rotate(-90deg);
+      transform-origin: left top;
+      color: #16140d;
+      background: var(--folder-accent);
+      padding: 2px 6px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 700;
+      border-radius: 2px;
+      z-index: 4;
+    }
+
+    /* Gold Clip */
+    .clip {
+      position: absolute;
+      top: -8px;
+      right: 48px;
+      width: 14px;
+      height: 38px;
+      background: linear-gradient(135deg, #ffe285, #b8860b 60%, #ffd700);
+      border-radius: 7px;
+      box-shadow: 
+        0 4px 10px rgba(0, 0, 0, 0.5),
+        inset 0 1px 1px rgba(255, 255, 255, 0.6);
+      z-index: 10;
+    }
+    .clip::after {
+      content: "";
+      position: absolute;
+      inset: 3px;
+      border-radius: 4px;
+      background: #141416;
+    }
+
+    /* Inside Cover */
+    .cover-inside {
+      inset: 0;
+      border-radius: 5px 9px 9px 5px;
+      transform: rotateY(180deg) translateZ(1px);
+      background: linear-gradient(100deg, #171913, var(--folder-ink));
+      box-shadow: inset 0 0 0 1px rgba(214, 185, 105, 0.35), inset 15px 0 30px rgba(0, 0, 0, 0.5);
+      display: grid;
+      place-items: center;
+      color: rgba(180, 157, 87, 0.4);
+      font: 9px ui-monospace, monospace;
+      letter-spacing: 0.2em;
+    }
+
+    .hint {
+      margin-top: 24px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Glowing Liquid Mesh -->
+  <div class="ambient-glow" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="cad-grid"></div>
+  </div>
+
+  <!-- AXON Interactive Gold Particle Canvas -->
+  <canvas id="bgCanvas" aria-hidden="true"></canvas>
+
+  <header>
+    <div class="brand">
+      <div class="brand-mark">H</div>
+      <span>HIVAI 3D ENGINE</span>
+    </div>
+    <div class="badge">Standalone Physical Mech</div>
+  </header>
+
+  <main>
+    <!-- Interactive Live Controls -->
+    <div class="glass-card">
+      <h2 class="form-title">Event Studio Mech</h2>
+      <p class="form-subtitle">Modify parameters below to see the physical 3D folder transform in real-time.</p>
+
+      <div class="field">
+        <label for="eventTitle">Event Title</label>
+        <input class="input" id="eventTitle" value="Nexus Ideathon 2026" maxlength="80">
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label for="eventCategory">Category</label>
+          <select id="eventCategory">
+            <option value="Hackathon">Hackathon (Gold)</option>
+            <option value="Cultural">Cultural (Crimson)</option>
+            <option value="Sports">Sports (Emerald)</option>
+            <option value="Seminar">Seminar (Azure)</option>
+            <option value="Workshop">Workshop (Amber)</option>
+            <option value="Drive">Sustainability (Teal)</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="eventDate">Event Date</label>
+          <input class="input" id="eventDate" value="14 Nov 2026">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="eventVenue">Venue Location</label>
+        <input class="input" id="eventVenue" value="Nexus Arena & Innovation Lab">
+      </div>
+
+      <div class="field">
+        <label for="coverUpload">Cover Artwork (Any JPEG/PNG/WebP)</label>
+        <input type="file" class="input" id="coverUpload" accept="image/*">
+      </div>
+
+      <button type="button" class="btn btn-primary" id="toggleHingeBtn">
+        Open / Close 3D Cover Leaf
+      </button>
+
+      <button type="button" class="btn btn-secondary" id="resetCoverBtn">
+        Remove Custom Artwork
+      </button>
+    </div>
+
+    <!-- 3D Folder Stage -->
+    <div class="stage-wrapper">
+      <span class="stage-eyebrow">Physical Leon Vasari 3D Mechanism</span>
+
+      <div class="folder-stage" id="folderStage">
+        <div class="folder-pose" id="folderPose">
+
+          <div class="folder" id="folder">
+            <!-- 1. Back Face -->
+            <div class="face back"></div>
+
+            <!-- 2. Spine Face -->
+            <div class="face spine">
+              <span class="spine-brand">H / ARCHIVE</span>
+              <span class="spine-title" id="spineTitle">Nexus Ideathon 2026</span>
+              <span class="spine-cat" id="spineCat">HACKATHON</span>
+            </div>
+
+            <!-- 3. Fore Edge Face -->
+            <div class="face fore-edge"></div>
+
+            <!-- 4. Top Edge Face -->
+            <div class="face top-edge"></div>
+
+            <!-- 5. Bottom Edge Face -->
+            <div class="face bottom-edge"></div>
+
+            <!-- 6. Paper Block Inside -->
+            <div class="paper-block">
+              <div class="paper-writing">
+                <small>HIVAI / OFFICIAL EVENT RECORD</small>
+                <strong id="paperTitle">Nexus Ideathon 2026</strong>
+                <span id="paperDate">14 Nov 2026</span>
+                <span id="paperVenue">Nexus Arena & Innovation Lab</span>
+                <b>CONFIRMED FILE</b>
+              </div>
+            </div>
+
+            <!-- 7. Front Cover Leaf on 3D Hinge -->
+            <div class="cover-hinge">
+              <div class="cover-leaf" id="coverLeaf">
+                <div class="face front">
+                  <div class="folder-tab" id="folderTab">HACKATHON</div>
+                  <div class="clip"></div>
+                  <div class="angled-label" id="angledLabel">HACKATHON / FILE</div>
+
+                  <!-- Optional Custom Uploaded Cover Image -->
+                  <img class="cover-artwork" id="coverArtwork" alt="Cover Artwork">
+
+                  <!-- Procedural Geometric Art Fallback -->
+                  <div class="procedural-art" id="proceduralArt">
+                    <i></i><i></i><i></i><i></i>
+                  </div>
+
+                  <div class="cover-print">
+                    <span class="archive-number">HIVAI / EVENT FILE</span>
+                    <h3 id="coverTitle">Nexus Ideathon 2026</h3>
+                    <div class="cover-rule"></div>
+                    <span class="cover-meta" id="coverDate">14 Nov 2026</span>
+                    <span class="cover-meta" id="coverVenue">Nexus Arena & Innovation Lab</span>
+                    <span class="status-stamp">PUBLISHED</span>
+                  </div>
+                </div>
+
+                <!-- Inside Face of Front Cover -->
+                <div class="face cover-inside">
+                  <span>HIVAI ARCHIVE</span>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /folder -->
+
+        </div><!-- /folder-pose -->
+      </div><!-- /folder-stage -->
+
+      <p class="hint">Click the folder or move your cursor to explore full 3D parallax & mechanical hinge.</p>
+    </div>
+  </main>
+
+  <script>
+    // ==========================================================================
+    // 1. DYNAMIC CATEGORY PALETTES
+    // ==========================================================================
+    const categoryTreatments = {
+      Hackathon: { accent: "#ffbf00", ink: "#1e1b12" },
+      Cultural:  { accent: "#ff5e7e", ink: "#211014" },
+      Sports:    { accent: "#22c55e", ink: "#0e1d13" },
+      Seminar:   { accent: "#38bdf8", ink: "#0e1724" },
+      Workshop:  { accent: "#f59e0b", ink: "#1f160b" },
+      Drive:     { accent: "#14b8a6", ink: "#0b1a18" }
+    };
+
+    function updateCategoryTheme(cat) {
+      const treatment = categoryTreatments[cat] || categoryTreatments.Hackathon;
+      document.documentElement.style.setProperty("--folder-accent", treatment.accent);
+      document.documentElement.style.setProperty("--folder-ink", treatment.ink);
+      
+      document.getElementById("spineCat").textContent = cat.toUpperCase();
+      document.getElementById("folderTab").textContent = cat.toUpperCase();
+      document.getElementById("angledLabel").textContent = cat.toUpperCase() + " / FILE";
+    }
+
+    // ==========================================================================
+    // 2. LIVE REACTIVE INPUT BINDING
+    // ==========================================================================
+    const titleInput = document.getElementById("eventTitle");
+    const categorySelect = document.getElementById("eventCategory");
+    const dateInput = document.getElementById("eventDate");
+    const venueInput = document.getElementById("eventVenue");
+    const coverUpload = document.getElementById("coverUpload");
+    const coverArtwork = document.getElementById("coverArtwork");
+    const proceduralArt = document.getElementById("proceduralArt");
+    const coverLeaf = document.getElementById("coverLeaf");
+    const toggleBtn = document.getElementById("toggleHingeBtn");
+    const resetCoverBtn = document.getElementById("resetCoverBtn");
+
+    titleInput.addEventListener("input", (e) => {
+      const val = e.target.value.trim() || "Untitled Event";
+      document.getElementById("coverTitle").textContent = val;
+      document.getElementById("paperTitle").textContent = val;
+      document.getElementById("spineTitle").textContent = val;
+    });
+
+    categorySelect.addEventListener("change", (e) => {
+      updateCategoryTheme(e.target.value);
+    });
+
+    dateInput.addEventListener("input", (e) => {
+      const val = e.target.value.trim() || "DATE TO BE SET";
+      document.getElementById("coverDate").textContent = val;
+      document.getElementById("paperDate").textContent = val;
+    });
+
+    venueInput.addEventListener("input", (e) => {
+      const val = e.target.value.trim() || "CAMPUS VENUE";
+      document.getElementById("coverVenue").textContent = val;
+      document.getElementById("paperVenue").textContent = val;
+    });
+
+    // Custom Artwork FileReader (instant local preview)
+    coverUpload.addEventListener("change", (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          coverArtwork.src = event.target.result;
+          coverArtwork.classList.add("visible");
+          proceduralArt.style.display = "none";
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    resetCoverBtn.addEventListener("click", () => {
+      coverUpload.value = "";
+      coverArtwork.src = "";
+      coverArtwork.classList.remove("visible");
+      proceduralArt.style.display = "grid";
+    });
+
+    // Toggle 3D Cover Leaf Hinge
+    let isOpen = false;
+    function toggleCover() {
+      isOpen = !isOpen;
+      coverLeaf.classList.toggle("open", isOpen);
+      toggleBtn.textContent = isOpen ? "Close 3D Cover Leaf" : "Open 3D Cover Leaf";
+    }
+    toggleBtn.addEventListener("click", toggleCover);
+    coverLeaf.addEventListener("click", toggleCover);
+
+    // ==========================================================================
+    // 3. 3D MOUSE PARALLAX TILT
+    // ==========================================================================
+    const folderStage = document.getElementById("folderStage");
+    const folderPose = document.getElementById("folderPose");
+
+    folderStage.addEventListener("pointermove", (e) => {
+      const rect = folderStage.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+
+      const rotY = -18 + x * 28;
+      const rotX = 10 - y * 24;
+      folderPose.style.transform = `rotateY(${rotY}deg) rotateX(${rotX}deg)`;
+    });
+
+    folderStage.addEventListener("pointerleave", () => {
+      folderPose.style.transform = "rotateY(-18deg) rotateX(10deg)";
+    });
+
+    // ==========================================================================
+    // 4. AXON INTERACTIVE PARTICLE CANVAS
+    // ==========================================================================
+    const canvas = document.getElementById("bgCanvas");
+    const ctx = canvas.getContext("2d");
+
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    window.addEventListener("resize", () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+
+    const colors = [
+      "rgba(255, 191, 0, ",
+      "rgba(229, 184, 66, ",
+      "rgba(255, 215, 0, ",
+      "rgba(255, 244, 214, ",
+      "rgba(184, 134, 11, "
+    ];
+
+    const particleCount = width < 768 ? 35 : 65;
+    const particles = [];
+
+    for (let i = 0; i < particleCount; i++) {
+      const vx = (Math.random() - 0.5) * 0.45;
+      const vy = (Math.random() - 0.5) * 0.45;
+      const baseAlpha = Math.random() * 0.55 + 0.2;
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx,
+        vy,
+        originVx: vx,
+        originVy: vy,
+        size: Math.random() * 1.8 + 0.8,
+        baseAlpha,
+        alpha: baseAlpha,
+        pulseSpeed: Math.random() * 0.02 + 0.008,
+        color: colors[Math.floor(Math.random() * colors.length)],
+      });
+    }
+
+    let mouseX = -1000, mouseY = -1000;
+    window.addEventListener("pointermove", (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    }, { passive: true });
+    window.addEventListener("pointerleave", () => {
+      mouseX = -1000;
+      mouseY = -1000;
+    });
+
+    let lastTime = performance.now();
+    function render(time) {
+      const dt = Math.min((time - lastTime) / 1000, 0.1);
+      lastTime = time;
+
+      ctx.clearRect(0, 0, width, height);
+
+      // Draw Filaments
+      const maxDistance = width < 768 ? 80 : 110;
+      const maxDistSq = maxDistance * maxDistance;
+
+      for (let i = 0; i < particles.length; i++) {
+        const p1 = particles[i];
+        for (let j = i + 1; j < particles.length; j++) {
+          const p2 = particles[j];
+          const dx = p1.x - p2.x;
+          const dy = p1.y - p2.y;
+          const distSq = dx * dx + dy * dy;
+
+          if (distSq < maxDistSq) {
+            const dist = Math.sqrt(distSq);
+            const lineAlpha = (1 - dist / maxDistance) * 0.14 * (p1.alpha + p2.alpha) * 0.5;
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = `rgba(229, 184, 66, ${lineAlpha})`;
+            ctx.lineWidth = 0.6;
+            ctx.stroke();
+          }
+        }
+      }
+
+      // Update and Draw Particles
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+
+        const dx = p.x - mouseX;
+        const dy = p.y - mouseY;
+        const distSq = dx * dx + dy * dy;
+        const influenceRadius = 130;
+
+        if (distSq < influenceRadius * influenceRadius && distSq > 0) {
+          const dist = Math.sqrt(distSq);
+          const force = (1 - dist / influenceRadius) * 2.2;
+          p.vx += (dx / dist) * force * 0.4;
+          p.vy += (dy / dist) * force * 0.4;
+        }
+
+        p.vx += (p.originVx - p.vx) * 0.03;
+        p.vy += (p.originVy - p.vy) * 0.03;
+        p.x += p.vx * dt * 60;
+        p.y += p.vy * dt * 60;
+
+        if (p.x < -10) p.x = width + 10;
+        else if (p.x > width + 10) p.x = -10;
+        if (p.y < -10) p.y = height + 10;
+        else if (p.y > height + 10) p.y = -10;
+
+        p.alpha = p.baseAlpha + Math.sin(time * p.pulseSpeed) * 0.15;
+        if (p.alpha < 0.1) p.alpha = 0.1;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `${p.color}${p.alpha})`;
+        ctx.shadowBlur = 6;
+        ctx.shadowColor = "rgba(255, 191, 0, 0.4)";
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+
+      requestAnimationFrame(render);
+    }
+    requestAnimationFrame(render);
+  </script>
+</body>
+</html>
