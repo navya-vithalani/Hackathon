@@ -15,6 +15,7 @@ interface HomeEventExplorerProps {
 /** Search and filter controls for the app's eligible-event feed. */
 export default function HomeEventExplorer({ events }: HomeEventExplorerProps) {
   const [query, setQuery] = useState('');
+  const [campus, setCampus] = useState('all');
   const [type, setType] = useState<EventType | 'all'>('all');
   const [mode, setMode] = useState<'all' | 'online' | 'offline'>('all');
   const [price, setPrice] = useState<'all' | 'free' | 'paid'>('all');
@@ -22,13 +23,23 @@ export default function HomeEventExplorer({ events }: HomeEventExplorerProps) {
   const [endDate, setEndDate] = useState('');
   const [registeredOnly, setRegisteredOnly] = useState(false);
   const registeredEventIds = MOCK_REGISTRATIONS.map(({ event_id }) => event_id);
+  const campuses = Array.from(
+    new Map(
+      events.flatMap((event) => {
+        const institution = event.owner?.institution;
+        return institution ? [[institution.id, institution.name] as const] : [];
+      }),
+    ),
+    ([id, name]) => ({ id, name }),
+  );
 
   const filteredEvents = events.filter((event) => {
-    const text = `${event.title} ${event.venue ?? ''} ${event.description_structured?.summary ?? ''}`.toLowerCase();
+    const text = `${event.title} ${event.venue ?? ''} ${event.owner?.institution?.name ?? ''} ${event.description_structured?.summary ?? ''}`.toLowerCase();
     const registered = registeredEventIds.includes(event.id);
     const eventDate = event.starts_at.slice(0, 10);
     return text.includes(query.trim().toLowerCase())
       && (type === 'all' || event.type === type)
+      && (campus === 'all' || event.owner?.institution?.id === campus)
       && (mode === 'all' || event.mode === mode)
       && (price === 'all' || (price === 'free' ? event.cost_amount === 0 : event.cost_amount > 0))
       && (!startDate || eventDate >= startDate)
@@ -51,6 +62,13 @@ export default function HomeEventExplorer({ events }: HomeEventExplorerProps) {
           <Search size={16} className="shrink-0 text-[var(--color-text-subtle)]" />
           <span className="sr-only">Search events</span>
           <input className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-[var(--color-text-subtle)]" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search events" />
+        </label>
+        <label className="flex flex-col gap-1 text-xs font-semibold text-[var(--color-text-muted)]">
+          Campus
+          <select className="min-h-[44px] rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 text-sm text-[var(--color-text)]" value={campus} onChange={(event) => setCampus(event.target.value)}>
+            <option value="all">All campuses</option>
+            {campuses.map(({ id, name }) => <option key={id} value={id}>{name}</option>)}
+          </select>
         </label>
         <label className="flex flex-col gap-1 text-xs font-semibold text-[var(--color-text-muted)]">
           Type
@@ -90,7 +108,7 @@ export default function HomeEventExplorer({ events }: HomeEventExplorerProps) {
           {filteredEvents.map((event) => <AppEventCard key={event.id} event={event} registered={registeredEventIds.includes(event.id)} />)}
         </div>
       ) : (
-        <EmptyState icon={<Search size={24} />} title="No events found" description="Try adjusting your filters to see more campus events." action={{ label: 'Clear filters', onClick: () => { setQuery(''); setType('all'); setMode('all'); setPrice('all'); setStartDate(''); setEndDate(''); setRegisteredOnly(false); }, variant: 'outline' }} />
+        <EmptyState icon={<Search size={24} />} title="No events found" description="Try adjusting your filters to see more campus events." action={{ label: 'Clear filters', onClick: () => { setQuery(''); setCampus('all'); setType('all'); setMode('all'); setPrice('all'); setStartDate(''); setEndDate(''); setRegisteredOnly(false); }, variant: 'outline' }} />
       )}
     </section>
   );

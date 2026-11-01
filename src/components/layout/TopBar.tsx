@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Bell, Hexagon } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { ROUTES } from '@/lib/constants/routes';
+import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import type { ReactNode } from 'react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -102,6 +103,8 @@ export function TopBar({
 
       {/* Right actions */}
       {actions}
+
+      <ThemeToggle />
 
       {/* Notification bell */}
       <Link

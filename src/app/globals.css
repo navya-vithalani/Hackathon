@@ -79,6 +79,8 @@ html {
   font-family: var(--font-body);
   color: var(--color-text);
   background-color: var(--color-bg);
+  color-scheme: light;
+  transition: background-color 240ms var(--ease-standard), color 240ms var(--ease-standard);
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -86,6 +88,10 @@ html {
   padding-top: env(safe-area-inset-top);
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
 }
 
 body {
@@ -285,6 +291,43 @@ body > div {
   }
 }
 
+::view-transition {
+  pointer-events: none;
+}
+
+::view-transition-old(.hive-depart) {
+  z-index: 1;
+  animation: hive-depart 420ms cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+
+::view-transition-new(.hive-arrive) {
+  z-index: 2;
+  animation: hive-arrive 720ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes hive-depart {
+  to {
+    filter: blur(8px);
+    opacity: 0;
+    transform: scale(0.965);
+  }
+}
+
+@keyframes hive-arrive {
+  from {
+    clip-path: circle(0% at 50% 45%);
+    filter: blur(10px);
+    opacity: 0.55;
+    transform: scale(1.035);
+  }
+  to {
+    clip-path: circle(150% at 50% 45%);
+    filter: blur(0);
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 /* Respect reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -308,6 +351,13 @@ body > div {
   body::after,
   .app-shell-content main > * {
     animation: none !important;
+  }
+
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
   }
 
   .event-preview-card > div:first-child {

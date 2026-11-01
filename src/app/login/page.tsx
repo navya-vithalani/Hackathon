@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { ViewTransition } from 'react'
 import { getSafeRedirectPath } from '@/lib/auth/redirect'
 import { AuthShell } from '@/components/auth/AuthShell'
 import { LoginForm } from '@/components/auth/AuthForms'
@@ -25,12 +26,18 @@ export default async function LoginPage({
   const redirectValue = Array.isArray(params.redirectTo) ? params.redirectTo[0] : params.redirectTo
 
   return (
-    <AuthShell title="Welcome back" description="Sign in to pick up where your campus story left off.">
-      <LoginForm
-        redirectTo={getSafeRedirectPath(redirectValue)}
-        error={errorKey ? AUTH_ERRORS[errorKey] : undefined}
-        notice={messageKey ? AUTH_NOTICES[messageKey] : undefined}
-      />
-    </AuthShell>
+    <ViewTransition
+      enter={{ 'hive-enter': 'hive-arrive', default: 'none' }}
+      exit={{ 'hive-enter': 'hive-depart', default: 'none' }}
+      default="none"
+    >
+      <AuthShell title="Welcome back" description="Sign in to pick up where your campus story left off.">
+        <LoginForm
+          redirectTo={getSafeRedirectPath(redirectValue)}
+          error={errorKey ? AUTH_ERRORS[errorKey] : undefined}
+          notice={messageKey ? AUTH_NOTICES[messageKey] : undefined}
+        />
+      </AuthShell>
+    </ViewTransition>
   )
 }

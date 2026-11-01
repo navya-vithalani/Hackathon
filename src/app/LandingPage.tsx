@@ -46,7 +46,7 @@ export default function LandingPage() {
             <span className={styles.statusDot} aria-hidden="true" />
             HIVAI · THE STUDENT EVENTS PLATFORM
           </p>
-          <Link className={styles.loginLink} href="/login">Log in</Link>
+          <Link className={styles.loginLink} href="/login" transitionTypes={['hive-enter']}>Log in</Link>
         </header>
 
         <div className={styles.heroGrid}>
@@ -59,7 +59,7 @@ export default function LandingPage() {
             <p className={styles.description}>
               Discover events at your school and beyond, run your own with AI, and bring your whole campus together.
             </p>
-            <Link className={styles.enterLink} href="/app/home">
+            <Link className={styles.enterLink} href="/app/home" transitionTypes={['hive-enter']}>
               Enter the hive <span aria-hidden="true">›</span>
             </Link>
 
@@ -136,7 +136,7 @@ export default function LandingPage() {
 
       <section className={styles.join} aria-labelledby="join-title">
         <h2 className={styles.sectionTitle} id="join-title">Ready to join the hive?</h2>
-        <Link className={styles.enterLink} href="/signup">Create your account</Link>
+        <Link className={styles.enterLink} href="/signup" transitionTypes={['hive-enter']}>Create your account</Link>
       </section>
     </main>
   );

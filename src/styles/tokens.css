@@ -166,13 +166,37 @@
   --z-tooltip:  600;
 }
 
-/* ======================== DARK MODE STUBS ======================== */
-/* Uncomment and fill in to enable dark mode. Palette maps maroon↔cream. */
-/* [data-theme="dark"] {
-  --color-bg:           var(--palette-maroon-dark);
-  --color-surface:      var(--palette-maroon);
-  --color-surface-alt:  var(--palette-maroon-light);
-  --color-text:         var(--palette-cream);
-  --color-text-muted:   var(--palette-cream-dark);
-  --color-border:       rgba(250, 244, 182, 0.12);
-} */
+/* ======================== DARK MODE ======================== */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --color-bg:              #171211;
+  --color-surface:         #241c1a;
+  --color-surface-alt:     #332522;
+  --color-surface-dark:    #4c1211;
+  --color-text:            #fbf7ce;
+  --color-text-muted:      #e4be7e;
+  --color-text-subtle:     #c0aaa6;
+  --color-text-inverse:    #fbf7ce;
+  --color-accent:          #e4be7e;
+  --color-accent-light:    #f0d99c;
+  --color-accent-dark:     #d2a24e;
+  --color-accent-contrast: #2e0b0a;
+  --color-secondary:       #e08778;
+  --color-secondary-light: #b5524f;
+  --color-danger:          #e08778;
+  --color-danger-bg:       #3a1c1b;
+  --color-success:         #74c698;
+  --color-success-bg:      #193326;
+  --color-warning:         #e6a56d;
+  --color-warning-bg:      #392719;
+  --color-info:            #77bde3;
+  --color-info-bg:         #172b39;
+  --color-border:          rgba(250, 244, 182, 0.14);
+  --color-border-strong:   rgba(250, 244, 182, 0.28);
+  --color-focus-ring:      #e4be7e;
+  --color-hover-overlay:   rgba(250, 244, 182, 0.08);
+  --shadow-sm:             0 1px 2px 0 rgba(0, 0, 0, 0.28);
+  --shadow-md:             0 4px 12px -2px rgba(0, 0, 0, 0.35);
+  --shadow-lg:             0 12px 28px -4px rgba(0, 0, 0, 0.42);
+  --shadow-card:           var(--shadow-md);
+}

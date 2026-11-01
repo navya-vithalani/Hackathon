@@ -1,0 +1,262 @@
+.card {
+  --pointer-x: 50%;
+  --pointer-y: 50%;
+  --card-rotate-x: 0deg;
+  --card-rotate-y: 0deg;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  width: 100%;
+  min-height: 310px;
+  padding: clamp(20px, 5vw, 32px);
+  border: 1px solid rgba(255, 244, 197, 0.28);
+  border-radius: 26px;
+  background:
+    radial-gradient(ellipse at 86% 12%, rgba(245, 180, 77, 0.22), transparent 36%),
+    radial-gradient(ellipse at 5% 110%, rgba(142, 51, 48, 0.8), transparent 54%),
+    linear-gradient(128deg, #26100f 0%, #4c1715 54%, #27110f 100%);
+  box-shadow: 0 24px 55px rgba(76, 18, 17, 0.27), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  color: #fbf7ce;
+  transform: perspective(1100px) rotateX(var(--card-rotate-x)) rotateY(var(--card-rotate-y));
+  transform-style: preserve-3d;
+  transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 260ms ease;
+}
+
+.card::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: radial-gradient(540px circle at var(--pointer-x) var(--pointer-y), rgba(255, 224, 135, 0.28), transparent 42%);
+  content: '';
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 240ms ease;
+}
+
+.card::after {
+  position: absolute;
+  z-index: -1;
+  top: -40%;
+  right: -14%;
+  width: 47%;
+  aspect-ratio: 1;
+  border: 1px solid rgba(255, 244, 197, 0.1);
+  border-radius: 50%;
+  box-shadow: 0 0 0 22px rgba(255, 244, 197, 0.025), 0 0 0 46px rgba(255, 244, 197, 0.02);
+  content: '';
+  pointer-events: none;
+}
+
+.card:hover {
+  box-shadow: 0 32px 70px rgba(76, 18, 17, 0.36), 0 0 32px rgba(210, 162, 78, 0.16);
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+.header,
+.brand,
+.content,
+.footer,
+.memberCode,
+.verification {
+  display: flex;
+  align-items: center;
+}
+
+.header,
+.footer {
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.brand {
+  gap: 9px;
+  font-size: 1.12rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.brandMark {
+  display: grid;
+  width: 33px;
+  height: 33px;
+  place-items: center;
+  border: 1px solid rgba(255, 244, 197, 0.3);
+  border-radius: 11px;
+  color: #f5c66c;
+}
+
+.passLabel,
+.kicker,
+.qrCaption {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.passLabel {
+  color: rgba(251, 247, 206, 0.7);
+}
+
+.passLabel span {
+  padding-inline: 5px;
+  color: #f5c66c;
+}
+
+.content {
+  gap: clamp(14px, 3vw, 24px);
+  min-width: 0;
+  margin-block: 36px 30px;
+}
+
+.avatar {
+  width: 72px !important;
+  height: 72px !important;
+  border: 2px solid rgba(255, 244, 197, 0.55);
+  box-shadow: 0 0 0 5px rgba(255, 244, 197, 0.08);
+}
+
+.member {
+  min-width: 0;
+  flex: 1;
+}
+
+.kicker {
+  margin: 0 0 7px;
+  color: #efc76f;
+  font-size: 0.58rem;
+}
+
+.name {
+  overflow: hidden;
+  margin: 0;
+  color: #fffbe2;
+  font-family: var(--font-heading);
+  font-size: clamp(1.25rem, 3.8vw, 1.8rem);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.role {
+  overflow: hidden;
+  margin: 7px 0 0;
+  color: #f1dca5;
+  font-size: 0.78rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.role span {
+  color: #efb044;
+}
+
+.email {
+  overflow: hidden;
+  margin: 5px 0 0;
+  color: rgba(251, 247, 206, 0.6);
+  font-size: 0.7rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.qrWrap {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 8px;
+  border-radius: 13px;
+  background: #fffdf6;
+  box-shadow: 0 8px 20px rgba(15, 5, 5, 0.22);
+}
+
+.qrCode {
+  display: block;
+  width: clamp(72px, 18vw, 104px);
+  height: clamp(72px, 18vw, 104px);
+}
+
+.qrCaption {
+  color: #4c1715;
+  font-size: 0.5rem;
+  font-weight: 700;
+}
+
+.footer {
+  padding-top: 15px;
+  border-top: 1px solid rgba(255, 244, 197, 0.18);
+}
+
+.memberCode,
+.verification {
+  gap: 6px;
+  color: rgba(251, 247, 206, 0.7);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.04em;
+}
+
+.memberCode svg,
+.verification svg {
+  flex: none;
+  color: #efc76f;
+}
+
+@media (max-width: 520px) {
+  .card {
+    min-height: 0;
+    padding: 20px;
+    border-radius: 22px;
+  }
+
+  .content {
+    gap: 13px;
+    margin-block: 28px 24px;
+  }
+
+  .avatar {
+    width: 56px !important;
+    height: 56px !important;
+  }
+
+  .qrWrap {
+    gap: 5px;
+    padding: 6px;
+  }
+
+  .qrCode {
+    width: 68px;
+    height: 68px;
+  }
+
+  .memberCode,
+  .verification {
+    font-size: 0.48rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .card::before {
+    transition: none;
+  }
+
+  .card:hover {
+    transform: none;
+  }
+}
+
+@media print {
+  .card {
+    min-height: 0;
+    box-shadow: none;
+    transform: none;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
