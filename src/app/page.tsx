@@ -1,5 +1,5 @@
-import EventDiscovery from "./EventDiscovery";
+import LandingPage from "./LandingPage";
 
 export default function Home() {
-  return <EventDiscovery />;
+  return <LandingPage />;
 }

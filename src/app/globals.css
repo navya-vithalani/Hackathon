@@ -108,9 +108,37 @@ body::before {
   animation: ambient-drift 34s ease-in-out infinite alternate;
 }
 
+body::after {
+  position: fixed;
+  z-index: 0;
+  inset: -10%;
+  background-color: color-mix(in srgb, var(--color-secondary) 10%, transparent);
+  content: "";
+  pointer-events: none;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='84' viewBox='0 0 96 84'%3E%3Cg fill='none' stroke='white' stroke-width='1'%3E%3Cpath d='M24 0 48 14v28L24 56 0 42V14L24 0Zm48 0 24 14v28L72 56 48 42V14L72 0ZM0 42l24 14v28L0 98l-24-14V56l24-14Zm48 0 24 14v28L48 98 24 84V56l24-14Zm48 0 24 14v28L96 98l-24-14V56l24-14Z'/%3E%3C/g%3E%3C/svg%3E");
+  mask-size: 96px 84px;
+  animation: honeycomb-drift 90s linear infinite;
+}
+
 body > div {
   position: relative;
   z-index: 1;
+}
+
+.app-shell-content main > * {
+  animation: section-arrive 700ms var(--ease-out) both;
+}
+
+.app-shell-content main > *:nth-child(2) {
+  animation-delay: 80ms;
+}
+
+.app-shell-content main > *:nth-child(3) {
+  animation-delay: 150ms;
+}
+
+.app-shell-content main > *:nth-child(4) {
+  animation-delay: 220ms;
 }
 
 .event-preview-card > div:first-child {
@@ -118,8 +146,19 @@ body > div {
   transition: background-size 900ms var(--ease-standard);
 }
 
+.event-preview-card {
+  transition:
+    transform var(--duration-slow) var(--ease-standard),
+    box-shadow var(--duration-slow) var(--ease-standard),
+    border-color var(--duration-slow) var(--ease-standard);
+}
+
 .event-preview-card:hover > div:first-child {
   background-size: 108%;
+}
+
+.event-preview-card:hover {
+  border-color: color-mix(in srgb, var(--color-accent) 48%, var(--color-border));
 }
 
 .event-preview-card h3 {
@@ -139,6 +178,26 @@ body > div {
   }
   100% {
     transform: translate3d(-.5%, 1.5%, 0) scale(1.01);
+  }
+}
+
+@keyframes honeycomb-drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(48px, 42px, 0);
+  }
+}
+
+@keyframes section-arrive {
+  from {
+    opacity: 0;
+    translate: 0 14px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
   }
 }
 
@@ -245,7 +304,9 @@ body > div {
   .ai-result,
   .voice-recording,
   .profile-orb,
-  body::before {
+  body::before,
+  body::after,
+  .app-shell-content main > * {
     animation: none !important;
   }
 

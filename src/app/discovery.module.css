@@ -1,7 +1,7 @@
 .page {
   min-height: 100vh;
   color: var(--color-text);
-  background: var(--color-bg);
+  background-color: transparent;
   overflow: clip;
 }
 
@@ -274,6 +274,7 @@
   border: 1px solid rgba(255, 249, 239, 0.45);
   border-radius: 50%;
   box-shadow: 0 0 0 26px rgba(255, 249, 239, 0.08), 0 0 0 54px rgba(255, 249, 239, 0.06);
+  animation: artwork-orbit-drift 18s ease-in-out infinite alternate;
 }
 
 .artworkHoneycomb {
@@ -550,6 +551,22 @@
   box-shadow: var(--shadow-lg);
 }
 
+.eventGrid[data-reveal-visible='true'] .eventCard {
+  animation: event-card-arrive 650ms var(--ease-out) both;
+}
+
+.eventGrid[data-reveal-visible='true'] .eventCard:nth-child(2) {
+  animation-delay: 80ms;
+}
+
+.eventGrid[data-reveal-visible='true'] .eventCard:nth-child(3) {
+  animation-delay: 160ms;
+}
+
+.eventGrid[data-reveal-visible='true'] .eventCard:nth-child(4) {
+  animation-delay: 240ms;
+}
+
 .eventArtwork {
   position: relative;
   height: 205px;
@@ -585,6 +602,7 @@
   right: -15px;
   width: 240px;
   height: 240px;
+  animation: event-orbit-drift 20s ease-in-out infinite alternate;
 }
 
 .eventArtwork::after {
@@ -592,6 +610,7 @@
   right: 18px;
   width: 174px;
   height: 174px;
+  animation: event-orbit-drift 24s ease-in-out -8s infinite alternate-reverse;
 }
 
 .artworkNumber,
@@ -785,8 +804,23 @@
 }
 
 @keyframes honeycomb-float {
-  from { transform: translateY(3px) rotate(-1deg); }
-  to { transform: translateY(-3px) rotate(1deg); }
+  from { transform: translate3d(-4px, 6px, 0) rotate(-2deg) scale(.98); }
+  to { transform: translate3d(5px, -8px, 0) rotate(2deg) scale(1.04); }
+}
+
+@keyframes artwork-orbit-drift {
+  from { transform: translate3d(-8px, 5px, 0) scale(.94) rotate(-8deg); }
+  to { transform: translate3d(10px, -7px, 0) scale(1.06) rotate(8deg); }
+}
+
+@keyframes event-orbit-drift {
+  from { transform: translate3d(-8px, 6px, 0) scale(.94); }
+  to { transform: translate3d(12px, -8px, 0) scale(1.06); }
+}
+
+@keyframes event-card-arrive {
+  from { opacity: 0; translate: 0 16px; scale: .98; }
+  to { opacity: 1; translate: 0 0; scale: 1; }
 }
 
 .detailPage {
@@ -1892,7 +1926,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .artworkHoneycomb { animation: none; }
+  .artworkHoneycomb,
+  .artworkOrbit,
+  .eventArtwork::before,
+  .eventArtwork::after,
+  .eventCard { animation: none; }
   .headerAction,
   .heroAction,
   .featured,

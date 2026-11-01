@@ -32,7 +32,7 @@ export function AppShell({
   const title = PAGE_TITLES[pathname] ?? (pathname.startsWith('/app/event/') ? 'Event workspace' : 'hivai');
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg)]">
+    <div className="min-h-screen">
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:left-[var(--space-4)] focus:top-[var(--space-4)] focus:z-[var(--z-tooltip)] focus:rounded-[var(--radius-md)] focus:bg-[var(--color-surface)] focus:px-[var(--space-4)] focus:py-[var(--space-3)] focus:text-[var(--color-text)] focus:shadow-[var(--shadow-lg)]"
