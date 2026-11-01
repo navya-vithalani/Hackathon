@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { z } from 'zod'
 import { generate } from '@/services/ai'
-import { GeminiError } from '@/services/ai/gemini'
+import { GeminiError, getGeminiFailure } from '@/services/ai/gemini'
 import { AuthenticationRequiredError, getAuthenticatedUser } from '@/services/supabase/authenticated-user'
 import { eventStructureSchema, structureRequestSchema } from '@/lib/schemas/ai'
 import { EVENT_STRUCTURER_PROMPT } from '@/prompts/event-structurer'
@@ -63,8 +63,8 @@ const MAX_REQUEST_BYTES = 60_000
 
 function getErrorResponse(error: unknown) {
   if (error instanceof GeminiError) {
-    const status = error.status === 413 ? 413 : error.status === 429 ? 429 : 503
-    return NextResponse.json({ error: error.message }, { status })
+    const failure = getGeminiFailure(error, 'event structuring')
+    return NextResponse.json({ error: failure.message }, { status: failure.status })
   }
 
   console.error('Event structuring request failed:', error)

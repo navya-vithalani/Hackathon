@@ -3,6 +3,7 @@ import QRCode from 'qrcode';
 import { ArrowLeft } from 'lucide-react';
 import { CampusIdCard } from '@/components/profile/CampusIdCard';
 import { PrintIdButton } from '@/components/profile/PrintIdButton';
+import { MOCK_GATIK_INSTITUTION } from '@/mocks';
 import { createClient } from '@/services/supabase/server';
 import { redirect } from 'next/navigation';
 
@@ -18,10 +19,7 @@ export default async function ProfileIdPage() {
   const displayName = typeof fullName === 'string' && fullName.trim()
     ? fullName
     : user.email ?? 'hivai member';
-  const campusMetadata = user.user_metadata?.institution_name;
-  const campusName = typeof campusMetadata === 'string' && campusMetadata.trim()
-    ? campusMetadata.trim()
-    : 'Campus not added';
+  const campusName = MOCK_GATIK_INSTITUTION.name;
   const qrCode = await QRCode.toDataURL(`hivai:member:${user.id}`, {
     errorCorrectionLevel: 'M',
     margin: 1,

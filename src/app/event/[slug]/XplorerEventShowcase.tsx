@@ -12,6 +12,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { EVENT_TYPE_LABELS } from '@/lib/constants/eventTypes';
+import { ROUTES } from '@/lib/constants/routes';
 import type { Event } from '@/types';
 import styles from '../../discovery.module.css';
 import XplorerRegistrationForm from './XplorerRegistrationForm';
@@ -158,7 +159,7 @@ export default function XplorerEventShowcase({ event }: { event: Event }) {
 
       <footer className={styles.xplorerFooter}>
         <span>MADE WITH CURIOSITY AT GATIK JR. COLLEGE</span>
-        <Link href="/#events">Back to discover <ArrowUpRight size={14} /></Link>
+        <Link href={ROUTES.APP_HOME}>Back to home <ArrowUpRight size={14} /></Link>
       </footer>
     </article>
   );

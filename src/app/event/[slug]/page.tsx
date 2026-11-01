@@ -46,9 +46,9 @@ export default async function EventPage({ params }: PageProps<'/event/[slug]'>) 
   return (
     <main className={styles.detailPage}>
       <header className={styles.detailHeader}>
-        <Link className={styles.backLink} href="/#events"><ArrowLeft size={16} /> All events</Link>
-        <Link href="/" className={styles.brand}><span className={styles.brandMark}><Hexagon size={18} aria-hidden="true" /></span><span>hivai</span></Link>
-        <Link href="/#events">Discover <ArrowUpRight size={15} /></Link>
+        <Link className={styles.backLink} href={ROUTES.APP_HOME}><ArrowLeft size={16} /> Back to home</Link>
+        <Link href={ROUTES.APP_HOME} className={styles.brand}><span className={styles.brandMark}><Hexagon size={18} aria-hidden="true" /></span><span>hivai</span></Link>
+        <Link href={ROUTES.APP_HOME}>Home <ArrowUpRight size={15} /></Link>
       </header>
 
       {event.slug === 'xplorer-2026' ? (

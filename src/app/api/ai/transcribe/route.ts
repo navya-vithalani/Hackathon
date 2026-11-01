@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { transcribe } from '@/services/ai'
-import { GeminiError } from '@/services/ai/gemini'
+import { GeminiError, getGeminiFailure } from '@/services/ai/gemini'
 import { AuthenticationRequiredError, getAuthenticatedUser } from '@/services/supabase/authenticated-user'
 
 const MAX_AUDIO_BYTES = 1_000_000
@@ -38,8 +38,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 401 })
     }
     if (error instanceof GeminiError) {
-      const status = error.status === 413 ? 413 : error.status === 429 ? 429 : 503
-      return NextResponse.json({ error: error.message }, { status })
+      const failure = getGeminiFailure(error, 'voice transcription')
+      return NextResponse.json({ error: failure.message }, { status: failure.status })
     }
 
     console.error('Voice transcription request failed:', error)

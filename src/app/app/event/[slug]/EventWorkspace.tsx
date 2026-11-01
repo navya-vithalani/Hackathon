@@ -61,7 +61,7 @@ export default function EventWorkspace({ event, members, broadcasts, registratio
 
   return (
     <div className="space-y-6">
-      <Link href={ROUTES.APP_MY_EVENTS} className="inline-flex min-h-[44px] items-center gap-2 text-sm font-semibold text-[var(--color-secondary)]"><ArrowLeft size={16} /> My Events</Link>
+      <Link href={ROUTES.APP_HOME} className="inline-flex min-h-[44px] items-center gap-2 text-sm font-semibold text-[var(--color-secondary)]"><ArrowLeft size={16} /> Back to home</Link>
       <header className="flex flex-wrap items-end justify-between gap-4 border-b border-[var(--color-border)] pb-6">
         <div><p className="mb-2 text-xs font-bold uppercase tracking-[0.12em] text-[var(--color-secondary)]">{EVENT_TYPE_LABELS[event.type]} workspace</p><h1 className="font-heading text-3xl font-semibold">{event.title}</h1><div className="mt-3 flex flex-wrap gap-4 text-xs text-[var(--color-text-subtle)]"><span className="inline-flex items-center gap-1.5"><CalendarDays size={14} />{formatDate(event.starts_at)}</span><span className="inline-flex items-center gap-1.5"><MapPin size={14} />{event.mode === 'online' ? 'Online' : event.venue}</span></div></div>
         <Select aria-label="Preview event role" value={role} onChange={(eventChange) => changeRole(eventChange.target.value)} options={roleOptions} containerClassName="min-w-[180px]" />

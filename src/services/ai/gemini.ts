@@ -39,7 +39,11 @@ function jsonSchemaToZod(schema: unknown): z.ZodTypeAny {
     return z.enum(schemaObj.enum as [string, ...string[]])
   }
 
-  if (schemaObj.type === 'object' && schemaObj.properties && typeof schemaObj.properties === 'object') {
+  const schemaType = typeof schemaObj.type === 'string'
+    ? schemaObj.type.toLowerCase()
+    : undefined
+
+  if (schemaType === 'object' && schemaObj.properties && typeof schemaObj.properties === 'object') {
     const properties = Object.entries(schemaObj.properties as Record<string, unknown>).reduce(
       (acc, [key, value]) => {
         acc[key] = jsonSchemaToZod(value)
@@ -57,14 +61,14 @@ function jsonSchemaToZod(schema: unknown): z.ZodTypeAny {
       : objectSchema
   }
 
-  if (schemaObj.type === 'array') {
+  if (schemaType === 'array') {
     return z.array(jsonSchemaToZod(schemaObj.items ?? z.any()))
   }
 
-  if (schemaObj.type === 'boolean') return z.boolean()
-  if (schemaObj.type === 'number' || schemaObj.type === 'integer') return z.number()
-  if (schemaObj.type === 'string') return z.string()
-  if (schemaObj.type === 'null') return z.null()
+  if (schemaType === 'boolean') return z.boolean()
+  if (schemaType === 'number' || schemaType === 'integer') return z.number()
+  if (schemaType === 'string') return z.string()
+  if (schemaType === 'null') return z.null()
 
   return z.any()
 }
@@ -78,6 +82,39 @@ export class GeminiError extends Error {
     this.name = 'GeminiError'
     this.status = options?.status
     this.cause = options?.cause
+  }
+}
+
+export function getGeminiFailure(error: GeminiError, feature: string) {
+  const providerMessage = error.cause instanceof Error
+    ? error.cause.message
+    : error.message
+  console.error(`Gemini ${feature} failed:`, {
+    status: error.status,
+    message: providerMessage,
+  })
+
+  if (error.status === 429) {
+    return { status: 429, message: 'The AI service is at capacity. Please try again shortly.' }
+  }
+  if (error.status === 404) {
+    return { status: 503, message: 'The configured AI model was not found. Check GEMINI_MODEL.' }
+  }
+  if (error.status === 401 || error.status === 403) {
+    return { status: 503, message: 'The AI service rejected its credentials. Check GEMINI_API_KEY.' }
+  }
+  if (error.status === 413) {
+    return { status: 413, message: error.message }
+  }
+  if (error.status === 502) {
+    return { status: 502, message: error.message }
+  }
+  if (error.status === 500 && error.message.includes('GEMINI_API_KEY')) {
+    return { status: 503, message: error.message }
+  }
+  return {
+    status: 503,
+    message: 'The AI service could not complete this request. Check the server logs and try again.',
   }
 }
 
@@ -160,8 +197,8 @@ export async function generateWithGemini(
         }
       } catch (error) {
         const cause = error instanceof Error ? error : new Error('Invalid AI JSON payload')
-        throw new GeminiError('AI is busy, try again.', {
-          status: 429,
+        throw new GeminiError('AI returned an invalid structured response. Please try again.', {
+          status: 502,
           cause,
         })
       }
@@ -198,7 +235,7 @@ export async function transcribeWithGemini(audioBlob: Blob): Promise<string> {
     })
   }
 
-  const mimeType = audioBlob.type || 'audio/webm'
+  const mimeType = audioBlob.type.split(';', 1)[0].trim().toLowerCase() || 'audio/webm'
   const data = Buffer.from(await audioBlob.arrayBuffer()).toString('base64')
 
   return withRetry(async () => {
